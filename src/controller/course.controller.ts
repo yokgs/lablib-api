@@ -26,12 +26,16 @@ class CourseController {
             throw new BadRequestException('Course under this name already exists');
         }
 
+        let $category = await categoryService.getByName(category);
+        if (!$category) {
+            throw new BadRequestException('Cannot find category ' + category);
+        }
         const course = new Course();
 
         course.name = name;
         course.description = description;
         course.image = image;
-        course.category = await categoryService.getByName(category);
+        course.category = $category;
         const newCourse = await courseService.create(course);
 
         res.status(200).json({ ...newCourse, category: course.category.name });

@@ -25,7 +25,11 @@ class StepController {
         if (await stepService.getByName(name)) {
             throw new BadRequestException('Step under this name already exists');
         }
-
+        
+        let $lab = await labService.getByName(lab);
+        if (!$lab) {
+            throw new BadRequestException('Cannot find lab ' + lab);
+        }
         const step = new Step();
 
         step.name = name;

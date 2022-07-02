@@ -1,11 +1,13 @@
+import { channel } from 'diagnostics_channel';
 import { Request, Response } from 'express';
 import moment from 'moment';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { Lab } from '../model/lab';
+import chapterService from '../service/chapter.service';
 import labService from '../service/lab.service';
 
 class LabController {
-    
+
     public async currentLab(req: Request, res: Response) {
         let labName = req.params.lab.replace(/\-/g, ' ');
         res.status(200).json({ ...await labService.getByName(labName) });
@@ -16,7 +18,7 @@ class LabController {
     }
 
     public async createLab(req: Request, res: Response) {
-        const { name, duration } = req.body;
+        const { name, duration, chapter } = req.body;
 
         if (!name) {
             throw new BadRequestException('Missing required fields');
@@ -25,12 +27,15 @@ class LabController {
         if (await labService.getByName(name)) {
             throw new BadRequestException('Lab under this name already exists');
         }
-
+        let $chapter = await chapterService.getById(Number(chapter));
+        if (!$chapter) {
+            throw new BadRequestException('Cannot find chapter ' + chapter);
+        }
         const lab = new Lab();
 
         lab.name = name;
         lab.duration = duration;
-        
+        lab.chapter = $chapter;
         const newLab = await labService.create(lab);
 
         res.status(200).json({ ...newLab, category: lab.chapter.name });
@@ -72,7 +77,7 @@ class LabController {
         return res.status(200).json({});
     }
     public async allStepsByLab(req: Request, res: Response) {
-       
+
     }
 }
 

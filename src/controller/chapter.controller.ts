@@ -28,11 +28,14 @@ class ChapterController {
         if (await chapterService.getByName(name)) {
             throw new BadRequestException('Chapter under this name already exists');
         }
-
+        let $course = await courseService.getByName(course);
+        if (!$course) {
+            throw new BadRequestException('Cannot find course ' + course);
+        }
         const chapter = new Chapter();
 
         chapter.name = name;
-        chapter.course = await courseService.getByName(course);
+        chapter.course = $course;
         const newChapter = await chapterService.create(chapter);
 
         res.status(200).json({ ...newChapter, course: chapter.course.name });
