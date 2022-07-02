@@ -16,7 +16,7 @@ class CategoryController {
     }
 
     public async createCategory(req: Request, res: Response) {
-        const { name, image } = req.body;
+        const { name, image, description } = req.body;
 
         if (!name) {
             throw new BadRequestException('Missing required fields');
@@ -27,23 +27,13 @@ class CategoryController {
         }
 
 
+        const category = new Category();
+        category.name = name;
+        category.image = image;
+        category.description = description;
+        const newCategory = await categoryService.create(category);
+        res.status(200).json({ ...newCategory });
 
-        try {
-            const category = new Category();
-            category.name = name;
-            category.image = image; try {
-                const newCategory = await categoryService.create(category);
-                res.status(200).json({ ...newCategory });
-            } catch (err) {
-                res.status(500).json({ ...err });
-            }
-        } catch (err) {
-            res.status(500).json({ ...err });
-        }
-
-
-
-        
     }
 
     public async categoryById(req: Request, res: Response) {
