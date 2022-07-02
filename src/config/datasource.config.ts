@@ -15,6 +15,10 @@ const PostgresDataSource = new DataSource({
 	url: config.DB_URL,
 	entities: [User, Lab, Category, Course, Chapter, Step],
 	synchronize: true,
+	ssl: {
+		require: true,
+        rejectUnauthorized: false 
+	},
 	namingStrategy: new SnakeNamingStrategy(),
 });
 
