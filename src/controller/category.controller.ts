@@ -7,7 +7,7 @@ import courseService from '../service/course.service';
 
 class CategoryController {
     public async currentCategory(req: Request, res: Response) {
-        let categoryName = req.params.category.replace(/\-/g, ' ');
+        let categoryName = req.params.categoryId.replace(/\-/g, ' ');
         res.status(200).json({ ...await categoryService.getByName(categoryName) });
     }
 
@@ -46,7 +46,7 @@ class CategoryController {
     }
 
     public async updateCategory(req: Request, res: Response) {
-        const { name, image } = req.body;
+        const { name, image, description } = req.body;
 
         const { categoryId } = req.params;
         const category = await categoryService.getById(Number(categoryId));
@@ -55,12 +55,10 @@ class CategoryController {
             throw new BadRequestException('Category not found');
         }
 
-        if (!name || !image) {
-            throw new BadRequestException('Missing required fields');
-        }
 
-        category.image = image;
-        category.name = name;
+        category.name = name || category.name;
+        category.description = description || category.description;
+        category.image = image || category.image;
 
         const updatedCategory = await categoryService.update(Number(categoryId), category);
 
@@ -75,7 +73,7 @@ class CategoryController {
             throw new BadRequestException('Category not found');
         }
 
-        await categoryService.delete(Number(category));
+        await categoryService.delete(category.id);
 
         return res.status(200).json({});
     }

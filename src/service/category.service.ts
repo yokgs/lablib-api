@@ -18,7 +18,11 @@ class CategoryService {
 	}
 
 	public async getById(id: number): Promise<Category | null> {
-		return this.categoryRepository.findOne({ where: { id } });
+		try {
+			return this.categoryRepository.findOne({ where: { id } });
+		} catch (err){
+			console.log(err , 'mm')
+		}
 	}
 
 	public async create(category: Category): Promise<Category> {

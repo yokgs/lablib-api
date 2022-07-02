@@ -42,7 +42,7 @@ class ChapterController {
     }
 
     public async updateChapter(req: Request, res: Response) {
-        const { name, course, description, image } = req.body;
+        const { name } = req.body;
 
         const { chapterId } = req.params;
         const chapter = await chapterService.getById(Number(chapterId));
@@ -51,12 +51,7 @@ class ChapterController {
             throw new BadRequestException('Chapter not found');
         }
 
-        if (!name || !course || !description || !image) {
-            throw new BadRequestException('Missing required fields');
-        }
-
-        chapter.name = name;
-
+        chapter.name = name || chapter.name;
 
         const updatedChapter = await chapterService.update(Number(chapterId), chapter);
 
@@ -71,7 +66,7 @@ class ChapterController {
             throw new BadRequestException('Chapter not found');
         }
 
-        await chapterService.delete(Number(chapter));
+        await chapterService.delete(chapter.id);
 
         return res.status(200).json({});
     }

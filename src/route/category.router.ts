@@ -12,7 +12,7 @@ class CategoryRouter {
     private routes() {
         this.router.get('/',categoryController.allCategories);
         this.router.post('/', categoryController.createCategory);
-        this.router.get('/:categoryId', categoryController.currentCategory);
+        this.router.get('/:categoryId', categoryController.categoryById);
         this.router.put('/:categoryId', categoryController.updateCategory);
         this.router.delete('/:categoryId', categoryController.deleteCategory);
         this.router.get('/:categoryId/list', categoryController.allCoursesByCategory);

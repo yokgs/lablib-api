@@ -53,14 +53,9 @@ class CourseController {
             throw new BadRequestException('Course not found');
         }
 
-        if (!name || !category || !description || !image) {
-            throw new BadRequestException('Missing required fields');
-        }
-
-        course.image = image;
-        course.description = description;
-        course.name = name;
-
+        course.image = image || course.image;
+        course.description = description || course.description;
+        course.name = name || course.name;
 
         const updatedCourse = await courseService.update(Number(courseId), course);
 
@@ -75,7 +70,7 @@ class CourseController {
             throw new BadRequestException('Course not found');
         }
 
-        await courseService.delete(Number(course));
+        await courseService.delete(course.id);
 
         return res.status(200).json({});
     }
