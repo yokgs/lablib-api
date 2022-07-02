@@ -35,10 +35,10 @@ class CategoryController {
                 const newCategory = await categoryService.create(category);
                 res.status(200).json({ ...newCategory });
             } catch (err) {
-                res.status(500).send('hadchi mrid')
+                res.status(500).json({ ...err });
             }
         } catch (err) {
-            res.status(500).send('hadchi mrid ktr')
+            res.status(500).json({ ...err });
         }
 
 

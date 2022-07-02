@@ -22,7 +22,14 @@ class CategoryService {
 	}
 
 	public async create(category: Category): Promise<Category> {
-		return this.categoryRepository.save(category);
+		let save: Promise<Category>;
+		try {
+			save = this.categoryRepository.save(category);
+		} catch (err) {
+			console.error(err);
+		}
+		return save;
+		
 	}
 	public async delete(id: number): Promise<DeleteResult> {
         return this.categoryRepository.delete({ id });
