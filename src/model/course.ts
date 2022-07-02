@@ -12,7 +12,7 @@ export class Course extends BaseEntity {
         length: 255
     })
     description: string
-    @Column()
+    @Column({nullable: true})
     image: string
     @ManyToOne(
         () => Category,
