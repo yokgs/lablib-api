@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import moment from 'moment';
+import { createQueryBuilder } from 'typeorm';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { Category } from '../model/category';
 import categoryService from '../service/category.service';
@@ -12,7 +12,7 @@ class CategoryController {
     }
 
     public async allCategories(req: Request, res: Response) {
-        res.status(200).json((await categoryService.getAll()).map((category) => ({ ...category, courses: category.courses.length })));
+        res.status(200).json((await categoryService.getAll()).map((category) => ({ ...category })));
     }
 
     public async createCategory(req: Request, res: Response) {
