@@ -1,7 +1,5 @@
 import { Router } from "express";
 import categoryController from "../controller/category.controller";
-import { ensureAccessLevel } from "../middleware/ensureAccessLevel";
-import { Role } from "../types/role.enum";
 
 class CategoryRouter {
     public router: Router;

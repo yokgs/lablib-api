@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import { config } from './config/env.config';
 import { NotFoundException } from './error/NotFoundException.error';
 import categoryRouter from './route/category.router';
-import chapterRouter from './route/chapter.router';
+import courseRouter from './route/course.router';
 
 export class App {
     private _app: Application;
@@ -24,7 +24,7 @@ export class App {
 
     private mapRoutes() {
         this._app.use('/api/category', categoryRouter.router);
-        this._app.use('/api/chapter', chapterRouter.router);
+        this._app.use('/api/course', courseRouter.router);
         this._app.get('/', (req, res) => res.send('hello'));
         /**
          * Add your routes here
