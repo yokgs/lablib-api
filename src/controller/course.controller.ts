@@ -38,7 +38,7 @@ class CourseController {
     }
 
     public async courseById(req: Request, res: Response) {
-        const courseId = Number(req.params.id);
+        const courseId = Number(req.params.courseId);
 
         res.status(200).json({ ...await courseService.getById(courseId) });
     }

@@ -37,7 +37,7 @@ class CategoryController {
     }
 
     public async categoryById(req: Request, res: Response) {
-        const categoryId = Number(req.params.id);
+        const categoryId = Number(req.params.categoryId);
 
         res.status(200).json({ ...await categoryService.getById(categoryId) });
     }

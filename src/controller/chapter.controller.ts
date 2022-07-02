@@ -36,7 +36,7 @@ class ChapterController {
     }
 
     public async chapterById(req: Request, res: Response) {
-        const chapterId = Number(req.params.id);
+        const chapterId = Number(req.params.chapterId);
 
         res.status(200).json({ ...await chapterService.getById(chapterId) });
     }
