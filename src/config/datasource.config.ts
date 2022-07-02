@@ -16,8 +16,7 @@ const PostgresDataSource = new DataSource({
 	entities: [User, Lab, Category, Course, Chapter, Step],
 	synchronize: true,
 	ssl: {
-		require: true,
-        rejectUnauthorized: false 
+		rejectUnauthorized: false
 	},
 	namingStrategy: new SnakeNamingStrategy(),
 });
