@@ -75,6 +75,7 @@ class ChapterController {
 
         return res.status(200).json({});
     }
+    
 }
 
 export default new ChapterController();

@@ -3,6 +3,7 @@ import moment from 'moment';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { Category } from '../model/category';
 import categoryService from '../service/category.service';
+import courseService from '../service/course.service';
 
 class CategoryController {
     public async currentCategory(req: Request, res: Response) {
@@ -73,6 +74,11 @@ class CategoryController {
         await categoryService.delete(Number(category));
 
         return res.status(200).json({});
+    }
+    public async allCoursesByCategory(req: Request, res: Response) {
+        const { categoryId } = req.params;
+        let courses = await courseService.getAll();
+        res.status(200).json(courses.filter(c => c.category.id === Number(categoryId)));
     }
 }
 

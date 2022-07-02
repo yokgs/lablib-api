@@ -15,6 +15,8 @@ class CourseRouter {
         this.router.get('/:courseId', courseController.currentCourse);
         this.router.put('/:courseId', courseController.updateCourse);
         this.router.delete('/:courseId', courseController.deleteCourse);
+        this.router.get('/:courseId/list',courseController.allChaptersByCourse);
+
     }
 
 }

@@ -3,6 +3,7 @@ import { BadRequestException } from '../error/BadRequestException.error';
 import { Course } from '../model/course';
 import courseService from '../service/course.service';
 import categoryService from '../service/category.service';
+import chapterService from '../service/chapter.service';
 
 class CourseController {
     public async currentCourse(req: Request, res: Response) {
@@ -77,6 +78,12 @@ class CourseController {
         await courseService.delete(Number(course));
 
         return res.status(200).json({});
+    }
+
+    public async allChaptersByCourse(req: Request, res: Response) {
+        const { courseId } = req.params;
+        let chapters = await chapterService.getAll();
+        res.status(200).json(chapters.filter(c => c.course.id === Number(courseId)));
     }
 }
 
