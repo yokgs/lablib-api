@@ -16,9 +16,9 @@ class StepController {
     }
 
     public async createStep(req: Request, res: Response) {
-        const { name, lab, description, image } = req.body;
+        const { name, lab, content, demo, rang } = req.body;
 
-        if (!description || !lab || !name) {
+        if (!lab || !name || !rang || !content) {
             throw new BadRequestException('Missing required fields');
         }
 
@@ -29,6 +29,9 @@ class StepController {
         const step = new Step();
 
         step.name = name;
+        step.rang = rang;
+        step.demo = demo;
+        step.content = content;
         step.lab = await labService.getByName(lab);
         const newStep = await stepService.create(step);
 

@@ -7,7 +7,10 @@ export class Course extends BaseEntity {
     id: number
     @Column()
     name: string
-    @Column()
+    @Column({
+        default: "",
+        length: 255
+    })
     description: string
     @Column()
     image: string

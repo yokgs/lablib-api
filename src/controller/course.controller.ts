@@ -18,7 +18,7 @@ class CourseController {
     public async createCourse(req: Request, res: Response) {
         const { name, category, description, image } = req.body;
 
-        if (!description || !category || !name) {
+        if (!category || !name) {
             throw new BadRequestException('Missing required fields');
         }
 

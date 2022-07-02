@@ -6,7 +6,7 @@ export class Step  extends BaseEntity {
     id: number
     @Column()
     name: string
-    @Column()
+    @Column({nullable:true})
     demo: string
     @Column()
     content: string
