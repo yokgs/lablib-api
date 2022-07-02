@@ -12,7 +12,7 @@ class CategoryController {
     }
 
     public async allCategories(req: Request, res: Response) {
-        res.status(200).json((await categoryService.getAll()).map((category) => ({ ...category })));
+        res.status(200).json((await categoryService.getAll()).map((category) => ({ ...category, courses: category.courses.length })));
     }
 
     public async createCategory(req: Request, res: Response) {
