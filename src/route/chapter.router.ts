@@ -14,6 +14,7 @@ class ChapterRouter {
         this.router.get('/:chapterId', chapterController.chapterById);
         this.router.put('/:chapterId', chapterController.updateChapter);
         this.router.delete('/:chapterId', chapterController.deleteChapter);
+        this.router.get('/:chapterId/list', chapterController.allLabsByChapter);
     }
 
 }

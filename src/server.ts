@@ -6,6 +6,8 @@ import { NotFoundException } from './error/NotFoundException.error';
 import categoryRouter from './route/category.router';
 import chapterRouter from './route/chapter.router';
 import courseRouter from './route/course.router';
+import labRouter from './route/lab.router';
+import stepRouter from './route/step.router';
 
 export class App {
     private _app: Application;
@@ -36,10 +38,13 @@ export class App {
          * Add your routes here
          */
 
-        this._app.use('/api/category', categoryRouter.router);
-        this._app.use('/api/course', courseRouter.router);
-        this._app.use('/api/chapter', chapterRouter.router);
-        this._app.get('/', (req, res) => res.send('welcome to lablib :) <a href="/api/course">start from here</a>'));
+        this._app.use('/api/v1/category', categoryRouter.router);
+        this._app.use('/api/v1/course', courseRouter.router);
+        this._app.use('/api/v1/chapter', chapterRouter.router);
+        this._app.use('/api/v1/lab', labRouter.router);
+        this._app.use('/api/v1/step', stepRouter.router);
+
+        this._app.get('/', (req, res) => res.send('welcome to lablib :) <a href="/api/v1/category">start from here</a>'));
     }
 
     private notFound(

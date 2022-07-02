@@ -8,9 +8,13 @@ export class Lab extends BaseEntity {
     id: number
     @Column()
     name: string
-    @Column()
+    @Column({
+        default: 1800
+    })
     duration: number
-    @Column()
+    @Column({
+        default: "easy"
+    })
     level: string
     @ManyToOne(
         () => User,

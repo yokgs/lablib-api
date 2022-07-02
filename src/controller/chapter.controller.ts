@@ -6,6 +6,9 @@ import chapterService from '../service/chapter.service';
 import courseService from '../service/course.service';
 
 class ChapterController {
+    allLabsByChapter(arg0: string, allLabsByChapter: any) {
+        throw new Error("Method not implemented.");
+    }
     public async currentChapter(req: Request, res: Response) {
         let chapterName = req.params.chapter.replace(/\-/g, ' ');
         res.status(200).json({ ...await chapterService.getByName(chapterName) });
