@@ -33,6 +33,7 @@ class CategoryController {
             category.name = name;
             category.image = image; try {
                 const newCategory = await categoryService.create(category);
+                res.status(200).json({ ...newCategory });
             } catch (err) {
                 res.status(500).send('hadchi mrid')
             }
@@ -42,7 +43,7 @@ class CategoryController {
 
 
 
-        res.status(200).json({ ...newCategory });
+        
     }
 
     public async categoryById(req: Request, res: Response) {
