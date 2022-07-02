@@ -1,0 +1,23 @@
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, JoinColumn } from "typeorm";
+import { Lab } from "./lab";
+@Entity()
+export class Step  extends BaseEntity {
+    @PrimaryGeneratedColumn()
+    id: number
+    @Column()
+    name: string
+    @Column()
+    demo: string
+    @Column()
+    content: string
+    @Column()
+    rang: number
+    @ManyToOne(
+        () => Lab,
+        lab => lab.steps
+    )
+    @JoinColumn({
+        name: 'lab_id'
+    })
+    lab: Lab
+}
