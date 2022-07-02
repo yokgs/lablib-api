@@ -1,5 +1,7 @@
+import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import { config } from './config/env.config';
+import { errorHandler } from './error/errorhandler.handler';
 import { NotFoundException } from './error/NotFoundException.error';
 import categoryRouter from './route/category.router';
 import chapterRouter from './route/chapter.router';
@@ -10,6 +12,7 @@ export class App {
 
     constructor() {
         this._app = express();
+        this._app.use(bodyParser.exten);
         this.mapRoutes();
 
         /**
@@ -21,6 +24,7 @@ export class App {
         /**
          * Error Handler
          */
+        this._app.use(errorHandler);
     }
 
     private mapRoutes() {
@@ -28,7 +32,7 @@ export class App {
         /**
          * Add your routes here
          */
-        
+
         this._app.use('/api/category', categoryRouter.router);
         this._app.use('/api/course', courseRouter.router);
         this._app.use('/api/chapter', chapterRouter.router);
