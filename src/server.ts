@@ -12,7 +12,10 @@ export class App {
 
     constructor() {
         this._app = express();
-        this._app.use(bodyParser.exten);
+        this._app.use(bodyParser.urlencoded({ extended: true }));
+        this._app.use(express.json({
+            limit: '10mb'
+        }));
         this.mapRoutes();
 
         /**
