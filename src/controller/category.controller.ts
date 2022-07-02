@@ -26,11 +26,21 @@ class CategoryController {
             throw new BadRequestException('Category under this name already exists');
         }
 
-        const category = new Category();
 
-        category.name = name;
-        category.image = image;
-        const newCategory = await categoryService.create(category);
+
+        try {
+            const category = new Category();
+            category.name = name;
+            category.image = image; try {
+                const newCategory = await categoryService.create(category);
+            } catch (err) {
+                res.status(500).send('hadchi mrid')
+            }
+        } catch (err) {
+            res.status(500).send('hadchi mrid ktr')
+        }
+
+
 
         res.status(200).json({ ...newCategory });
     }
