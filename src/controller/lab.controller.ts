@@ -43,7 +43,12 @@ class LabController {
 
     public async labById(req: Request, res: Response) {
         const labId = Number(req.params.labId);
-        res.status(200).json({ ...await labService.getById(labId) });
+        const lab = await labService.getById(Number(labId));
+
+        if (!lab) {
+            throw new BadRequestException('Lab not found');
+        }
+        res.status(200).json({ ...lab });
     }
 
     public async updateLab(req: Request, res: Response) {

@@ -43,12 +43,16 @@ class ChapterController {
 
     public async chapterById(req: Request, res: Response) {
         const chapterId = Number(req.params.chapterId);
+        const chapter = await chapterService.getById(chapterId);
 
-        res.status(200).json({ ...await chapterService.getById(chapterId) });
+        if (!chapter) {
+            throw new BadRequestException('Chapter not found');
+        }
+        res.status(200).json({ ...chapter });
     }
 
     public async updateChapter(req: Request, res: Response) {
-        const { name } = req.body;
+        const { name, course } = req.body;
 
         const { chapterId } = req.params;
         const chapter = await chapterService.getById(Number(chapterId));
@@ -56,9 +60,12 @@ class ChapterController {
         if (!chapter) {
             throw new BadRequestException('Chapter not found');
         }
-
+        let $course = await courseService.getByName(course);
+        if (!$course) {
+            throw new BadRequestException('Cannot find course ' + course);
+        }
         chapter.name = name || chapter.name;
-
+        chapter.course = $course || chapter.course;
         const updatedChapter = await chapterService.update(Number(chapterId), chapter);
 
         return res.status(200).json({ ...updatedChapter });
@@ -76,7 +83,7 @@ class ChapterController {
 
         return res.status(200).json({});
     }
-    
+
 }
 
 export default new ChapterController();

@@ -37,12 +37,14 @@ class CategoryController {
     }
 
     public async categoryById(req: Request, res: Response) {
-        try {
-            const categoryId = Number(req.params.categoryId);
-            res.status(200).json({ ...await categoryService.getById(categoryId) });
-        } catch (err) {
-            res.status(200).json({ ...err });
+        const categoryId = Number(req.params.categoryId);
+        const category = await categoryService.getById(categoryId);
+
+        if (!category) {
+            throw new BadRequestException('Category not found');
         }
+        res.status(200).json({ ...category });
+
     }
 
     public async updateCategory(req: Request, res: Response) {

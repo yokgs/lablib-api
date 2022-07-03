@@ -25,7 +25,7 @@ class StepController {
         if (await stepService.getByName(name)) {
             throw new BadRequestException('Step under this name already exists');
         }
-        
+
         let $lab = await labService.getByName(lab);
         if (!$lab) {
             throw new BadRequestException('Cannot find lab ' + lab);
@@ -44,8 +44,12 @@ class StepController {
 
     public async stepById(req: Request, res: Response) {
         const stepId = Number(req.params.id);
+const step = await stepService.getById(stepId);
 
-        res.status(200).json({ ...await stepService.getById(stepId) });
+        if (!step) {
+            throw new BadRequestException('Step not found');
+        }
+        res.status(200).json({ ...step});
     }
 
     public async updateStep(req: Request, res: Response) {
