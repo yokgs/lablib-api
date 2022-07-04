@@ -1,8 +1,9 @@
 import { DeleteResult, Repository } from 'typeorm';
 import { PostgresDataSource } from '../config/datasource.config';
 import { Category } from '../model/category';
-
-class CategoryService {
+import { Injectable } from '@nestjs/common';
+@Injectable()
+export class CategoryService{
 
 	private categoryRepository: Repository<Category>;
 
@@ -18,11 +19,7 @@ class CategoryService {
 	}
 
 	public async getById(id: number): Promise<Category | null> {
-		try {
 			return this.categoryRepository.findOne({ where: { id } });
-		} catch (err){
-			console.log(err , 'mm')
-		}
 	}
 
 	public async create(category: Category): Promise<Category> {
@@ -33,7 +30,6 @@ class CategoryService {
 			console.error(err);
 		}
 		return save;
-		
 	}
 	public async delete(id: number): Promise<DeleteResult> {
         return this.categoryRepository.delete({ id });
@@ -43,5 +39,3 @@ class CategoryService {
 		return this.categoryRepository.findOneBy({ name });
 	}
 }
-
-export default new CategoryService();

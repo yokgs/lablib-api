@@ -26,7 +26,9 @@
     "heroku-postbuild": "yarn run build"
   },
   "dependencies": {
+    "@nestjs/platform-express": "^8.4.7",
     "@nestjs/swagger": "^5.2.1",
+    "@nestjs/typeorm": "^8.1.4",
     "@types/mime-types": "^2.1.1",
     "aws-sdk": "^2.1135.0",
     "bcrypt": "^5.0.1",

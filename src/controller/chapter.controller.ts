@@ -1,23 +1,19 @@
 import { Request, Response } from 'express';
-import moment from 'moment';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { Chapter } from '../model/chapter';
 import chapterService from '../service/chapter.service';
 import courseService from '../service/course.service';
+import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
 
 class ChapterController {
     allLabsByChapter(arg0: string, allLabsByChapter: any) {
         throw new Error("Method not implemented.");
     }
-    public async currentChapter(req: Request, res: Response) {
-        let chapterName = req.params.chapter.replace(/\-/g, ' ');
-        res.status(200).json({ ...await chapterService.getByName(chapterName) });
-    }
-
+    @Get()
     public async allChapters(req: Request, res: Response) {
         res.status(200).json((await chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name })));
     }
-
+    @Post()
     public async createChapter(req: Request, res: Response) {
         const { name, course, description, image } = req.body;
 
@@ -40,7 +36,7 @@ class ChapterController {
 
         res.status(200).json({ ...newChapter, course: chapter.course.name });
     }
-
+    @Get()
     public async chapterById(req: Request, res: Response) {
         const chapterId = Number(req.params.chapterId);
         const chapter = await chapterService.getById(chapterId);
@@ -50,7 +46,7 @@ class ChapterController {
         }
         res.status(200).json({ ...chapter });
     }
-
+    @Put()
     public async updateChapter(req: Request, res: Response) {
         const { name, course } = req.body;
 
@@ -70,6 +66,7 @@ class ChapterController {
 
         return res.status(200).json({ ...updatedChapter });
     }
+    @Delete()
     public async deleteChapter(req: Request, res: Response) {
         const { chapterId } = req.params;
 
