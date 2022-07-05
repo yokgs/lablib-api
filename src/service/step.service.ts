@@ -1,8 +1,10 @@
 import { DeleteResult, Repository } from 'typeorm';
 import { PostgresDataSource } from '../config/datasource.config';
 import { Step } from '../model/step';
+import { Injectable } from '@nestjs/common';
 
-class StepService {
+@Injectable()
+export class StepService {
 
     private stepRepository: Repository<Step>;
 

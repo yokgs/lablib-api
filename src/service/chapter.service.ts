@@ -1,8 +1,10 @@
 import { DeleteResult, Repository } from 'typeorm';
 import { PostgresDataSource } from '../config/datasource.config';
 import { Chapter } from '../model/chapter';
+import { Injectable } from '@nestjs/common';
 
-class ChapterService {
+@Injectable()
+export class ChapterService {
 
     private chapterRepository: Repository<Chapter>;
 
@@ -24,12 +26,20 @@ class ChapterService {
     public async create(chapter: Chapter): Promise<Chapter> {
         return this.chapterRepository.save(chapter);
     }
+
     public async delete(id: number): Promise<DeleteResult> {
         return this.chapterRepository.delete({ id });
     }
+
     public async getByName(name: string): Promise<Chapter | null> {
         return this.chapterRepository.findOneBy({ name });
     }
-}
 
+    public async getByCourse(courseId: number): Promise<Chapter[] | null> {
+        return this.chapterRepository.createQueryBuilder('chapter')
+            .leftJoinAndSelect("chapter.course", "course")
+            .where("course.id = :courseId", { courseId })
+            .getMany();
+    }
+}
 export default new ChapterService();

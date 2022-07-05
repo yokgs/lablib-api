@@ -1,8 +1,10 @@
 import { DeleteResult, Repository } from 'typeorm';
 import { PostgresDataSource } from '../config/datasource.config';
 import { Lab } from '../model/lab';
+import { Injectable } from '@nestjs/common';
 
-class LabService {
+@Injectable()
+export class LabService {
 
     private labRepository: Repository<Lab>;
 
@@ -30,6 +32,7 @@ class LabService {
     public async getByName(name: string): Promise<Lab | null> {
         return this.labRepository.findOneBy({ name });
     }
+    
 }
 
 export default new LabService();

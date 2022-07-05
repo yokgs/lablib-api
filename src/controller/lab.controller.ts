@@ -1,22 +1,28 @@
-import { channel } from 'diagnostics_channel';
 import { Request, Response } from 'express';
 import moment from 'moment';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { Lab } from '../model/lab';
-import chapterService from '../service/chapter.service';
+import { ChapterService } from '../service/chapter.service';
 import labService from '../service/lab.service';
+import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
-class LabController {
+@ApiTags('Lab')
+@Controller('lab')
+export class LabController {
 
-    public async currentLab(req: Request, res: Response) {
-        let labName = req.params.lab.replace(/\-/g, ' ');
-        res.status(200).json({ ...await labService.getByName(labName) });
+    private chapterService: ChapterService;
+
+    constructor() {
+        this.chapterService = new ChapterService();
     }
 
+    @Get('/')
     public async allLabs(req: Request, res: Response) {
         res.status(200).json((await labService.getAll()).map((lab) => ({ ...lab, category: lab.chapter.name })));
     }
 
+    @Post('/')
     public async createLab(req: Request, res: Response) {
         const { name, duration, chapter } = req.body;
 
@@ -27,7 +33,7 @@ class LabController {
         if (await labService.getByName(name)) {
             throw new BadRequestException('Lab under this name already exists');
         }
-        let $chapter = await chapterService.getById(Number(chapter));
+        let $chapter = await this.chapterService.getById(Number(chapter));
         if (!$chapter) {
             throw new BadRequestException('Cannot find chapter ' + chapter);
         }
@@ -38,9 +44,10 @@ class LabController {
         lab.chapter = $chapter;
         const newLab = await labService.create(lab);
 
-        res.status(200).json({ ...newLab, category: lab.chapter.name });
+        res.status(201).json({ ...newLab, category: lab.chapter.name });
     }
 
+    @Get('/:labId')
     public async labById(req: Request, res: Response) {
         const labId = Number(req.params.labId);
         const lab = await labService.getById(Number(labId));
@@ -51,6 +58,7 @@ class LabController {
         res.status(200).json({ ...lab });
     }
 
+    @Put('/:labId')
     public async updateLab(req: Request, res: Response) {
         const { name, duration, image } = req.body;
 
@@ -68,6 +76,7 @@ class LabController {
 
         return res.status(200).json({ ...updatedLab });
     }
+    @Delete('/:labId')
     public async deleteLab(req: Request, res: Response) {
         const { labId } = req.params;
 
@@ -81,6 +90,7 @@ class LabController {
 
         return res.status(200).json({});
     }
+    @Get('/:labId/list')
     public async allStepsByLab(req: Request, res: Response) {
 
     }

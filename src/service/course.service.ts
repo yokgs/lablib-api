@@ -1,8 +1,10 @@
 import { DeleteResult, Repository } from 'typeorm';
 import { PostgresDataSource } from '../config/datasource.config';
 import { Course } from '../model/course';
+import { Injectable } from '@nestjs/common';
 
-class CourseService {
+@Injectable()
+export class CourseService {
 
     private courseRepository: Repository<Course>;
 
@@ -30,6 +32,13 @@ class CourseService {
     public async getByName(name: string): Promise<Course | null> {
         return this.courseRepository.findOneBy({ name });
     }
+    public async getByCategory(categoryId: number): Promise<Course[] | null> {
+        return this.courseRepository.createQueryBuilder('course')
+            .leftJoinAndSelect("course.category", "category")
+            .where("category.id = :categoryId", { categoryId })
+            .getMany();
+    }
+
 }
 
 export default new CourseService();

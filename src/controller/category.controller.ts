@@ -1,26 +1,51 @@
 import { Request, Response } from 'express';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { Category } from '../model/category';
-import { CategoryService } from '../service/category.service';
-import courseService from '../service/course.service';
+import categoryService, { CategoryService } from '../service/category.service';
+import courseService, { CourseService } from '../service/course.service';
 import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
+import { ApiBadRequestResponse, ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PostCategoryDTO } from '../dto/post.category.dto'
 
-@Controller('Category')
+@ApiTags('Category')
+@Controller('category')
 export class CategoryController {
-    private categoryService: CategoryService;
-    constructor() {
-        this.categoryService = new CategoryService();
-    }
-    public async currentCategory(req: Request, res: Response) {
-        let categoryName = req.params.categoryId.replace(/\-/g, ' ');
-        res.status(200).json({ ...await this.categoryService.getByName(categoryName) });
-    }
-    @Get()
+
+    private categoryService = categoryService;
+    private courseService = courseService;
+
+    @ApiOperation({ description: 'Get a list of categories' })
+    @ApiOkResponse({
+        description: 'List of categories',
+        schema: {
+            type: 'Category[]',
+            example: [{ id: 5, name: "Web Development", description: 'Description of the Web Development category' }]
+        }
+    })
+    @Get('/')
     public async allCategories(req: Request, res: Response) {
         res.status(200).json((await this.categoryService.getAll()).map((category) => ({ ...category })));
     }
 
-    @Post()
+
+    @ApiOperation({ description: 'Create a new category' })
+    @ApiBody({
+        type: PostCategoryDTO,
+        description: 'infos about the new category',
+        })
+    @ApiOkResponse(
+        {
+            description: 'Category created',
+            schema: {
+                type: 'Category',
+                example: { id: 5, name: "Web Development", description: 'Description of the Web Development category' }
+            }
+        }
+    )
+    @ApiBadRequestResponse({
+        description: 'returned if the body request has missing required fields or existing category has the given name',
+    })
+    @Post('/')
     public async createCategory(req: Request, res: Response) {
         const { name, image, description } = req.body;
 
@@ -32,16 +57,16 @@ export class CategoryController {
             throw new BadRequestException('Category under this name already exists');
         }
 
-
         const category = new Category();
         category.name = name;
         category.image = image;
         category.description = description;
         const newCategory = await this.categoryService.create(category);
-        res.status(200).json({ ...newCategory });
-
+        res.status(201).json({ ...newCategory });
     }
-    @Get()
+
+    @ApiOperation({ description: 'Get details of a category' })
+    @Get('/:categoryId')
     public async categoryById(req: Request, res: Response) {
         const categoryId = Number(req.params.categoryId);
         const category = await this.categoryService.getById(categoryId);
@@ -50,9 +75,11 @@ export class CategoryController {
             throw new BadRequestException('Category not found');
         }
         res.status(200).json({ ...category });
-
     }
-    @Put()
+
+
+    @ApiOperation({ description: 'Modify a category' })
+    @Put('/:categoryId')
     public async updateCategory(req: Request, res: Response) {
         const { name, image, description } = req.body;
 
@@ -63,7 +90,6 @@ export class CategoryController {
             throw new BadRequestException('Category not found');
         }
 
-
         category.name = name || category.name;
         category.description = description || category.description;
         category.image = image || category.image;
@@ -72,7 +98,10 @@ export class CategoryController {
 
         return res.status(200).json({ ...updatedCategory });
     }
-    @Delete()
+
+
+    @ApiOperation({ description: 'Delete a category from the database.' })
+    @Delete('/:categoryId')
     public async deleteCategory(req: Request, res: Response) {
         const { categoryId } = req.params;
 
@@ -86,10 +115,15 @@ export class CategoryController {
 
         return res.status(200).json({});
     }
-    @Get()
+
+
+    @ApiOperation({ description: 'Get a list of courses for a given category' })
+    @Get('/:categoryId/list')
     public async allCoursesByCategory(req: Request, res: Response) {
         const { categoryId } = req.params;
-        let courses = await courseService.getAll();
-        res.status(200).json(courses.filter(c => c.category.id === Number(categoryId)));
+        let courses = courseService.getByCategory(Number(categoryId));
+        res.status(200).json({ ...courses });
     }
 }
+
+export default new CategoryController();
