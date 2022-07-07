@@ -1,104 +1,139 @@
 import { Request, Response } from 'express';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { Chapter } from '../model/chapter';
-import { ChapterService } from '../service/chapter.service';
-import { CourseService } from '../service/course.service';
+import chapterService from '../service/chapter.service';
+import courseService, { CourseService } from '../service/course.service';
 import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { PostChapterDTO } from '../dto/post.chapter.dto';
+import { NotFoundException } from '../error/NotFoundException.error';
+import labService from '../service/lab.service';
+import { PutChapterDTO } from '../dto/put.chapter.dto';
 
 @ApiTags('Chapter')
 @Controller('api/v1/chapter')
 export class ChapterController {
 
-    private chapterService: ChapterService;
-    private courseService: CourseService;
-    constructor() {
-        this.chapterService = new ChapterService();
-        this.courseService = new CourseService();
-    }
     @ApiOperation({ description: 'Get a list of chapters' })
+    @ApiResponse({
+        status: 404,
+        description: 'Chapter not found',
+    })
     @Get('/')
-    public async allChapters(req: Request, res: Response) {
-        res.status(200).json((await this.chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name })));
+    public async getChapters(req: Request, res: Response) {
+        res.status(200).json((await chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name })));
     }
 
     @ApiOperation({ description: 'Create a new chapter' })
+    @ApiBody({
+        type: PostChapterDTO,
+        description: 'infos about the new chapter',
+    })
     @Post('/')
     public async createChapter(req: Request, res: Response) {
-        const { name, course, description, image } = req.body;
+        const { name, course } = req.body;
 
-        if (!description || !course || !name) {
+        if (!course || !name) {
             throw new BadRequestException('Missing required fields');
         }
 
-        if (await this.chapterService.getByName(name)) {
+        if (await chapterService.getByName(name)) {
             throw new BadRequestException('Chapter under this name already exists');
         }
-        let $course = await this.courseService.getByName(course);
+        let $course = await courseService.getByName(course);
         if (!$course) {
-            throw new BadRequestException('Cannot find course ' + course);
+            throw new NotFoundException('Cannot find course ' + course);
         }
         const chapter = new Chapter();
 
         chapter.name = name;
         chapter.course = $course;
-        const newChapter = await this.chapterService.create(chapter);
+        const newChapter = await chapterService.create(chapter);
 
-        res.status(201).json({ ...newChapter, course: chapter.course.name });
+        res.status(200).json({ ...newChapter, course: course });
     }
-@ApiOperation({ description: 'Get details of a chapter' })
+
+    @ApiOperation({ description: 'Get details of a chapter' })
+    @ApiResponse({
+        status: 404,
+        description: 'Chapter not found',
+    })
     @Get('/:chapterId')
     public async chapterById(req: Request, res: Response) {
         const chapterId = Number(req.params.chapterId);
-        const chapter = await this.chapterService.getById(chapterId);
+        const chapter = await chapterService.getById(chapterId);
 
         if (!chapter) {
-            throw new BadRequestException('Chapter not found');
+            throw new NotFoundException('Chapter not found');
         }
         res.status(200).json({ ...chapter });
     }
 
     @ApiOperation({ description: 'Modify a chapter' })
+    @ApiBody({
+        type: PutChapterDTO,
+        description: 'infos to be updated',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Chapter not found',
+    })
     @Put('/:chapterId')
     public async updateChapter(req: Request, res: Response) {
         const { name, course } = req.body;
 
         const { chapterId } = req.params;
-        const chapter = await this.chapterService.getById(Number(chapterId));
+        const chapter = await chapterService.getById(Number(chapterId));
 
         if (!chapter) {
-            throw new BadRequestException('Chapter not found');
+            throw new NotFoundException('Chapter not found');
         }
-        let $course = await this.courseService.getByName(course);
+        let $course = await courseService.getByName(course);
         if (!$course) {
-            throw new BadRequestException('Cannot find course ' + course);
+            throw new NotFoundException('Cannot find course ' + course);
         }
         chapter.name = name || chapter.name;
         chapter.course = $course || chapter.course;
-        const updatedChapter = await this.chapterService.update(Number(chapterId), chapter);
+        const updatedChapter = await chapterService.update(Number(chapterId), chapter);
 
         return res.status(200).json({ ...updatedChapter });
     }
 
     @ApiOperation({ description: 'Delete a chapter from the database.' })
+    @ApiResponse({
+        status: 404,
+        description: 'Chapter not found',
+    })
     @Delete('/:chapterId')
     public async deleteChapter(req: Request, res: Response) {
         const { chapterId } = req.params;
 
-        const chapter = await this.chapterService.getById(Number(chapterId));
+        const chapter = await chapterService.getById(Number(chapterId));
 
         if (!chapter) {
-            throw new BadRequestException('Chapter not found');
+            throw new NotFoundException('Chapter not found');
         }
 
-        await this.chapterService.delete(chapter.id);
+        await chapterService.delete(chapter.id);
 
         return res.status(200).json({});
     }
 
+    @ApiOperation({ description: 'Get a list of labs for a given chapter' })
+    @ApiResponse({
+        status: 404,
+        description: 'Chapter not found',
+    })
     @Get('/:chapterId/list')
-    allLabsByChapter(arg0: string, allLabsByChapter: any) {
-        throw new Error("Method not implemented.");
+    public async getLabsByChapter(req: Request, res: Response) {
+        const { chapterId } = req.params;
+        const chapter = await chapterService.getById(Number(chapterId));
+
+        if (!chapter)
+            throw new NotFoundException('Chapter not found');
+
+        let labs = await labService.getByChapter(Number(chapterId));
+        res.status(200).json(labs);
     }
 
 }

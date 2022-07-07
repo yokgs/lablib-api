@@ -5,19 +5,25 @@ import courseService from '../service/course.service';
 import categoryService from '../service/category.service';
 import chapterService from '../service/chapter.service';
 import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { NotFoundException } from '../error/NotFoundException.error';
+import { PostCourseDTO } from '../dto/post.course.dto';
+import { PutCourseDTO } from '../dto/put.course.dto';
 
 @ApiTags('Course')
 @Controller('api/v1/course')
 export class CourseController {
     @ApiOperation({ description: 'Get a list of courses' })
     @Get('/')
-    public async allCourses(req: Request, res: Response) {
+    public async getCourses(req: Request, res: Response) {
         res.status(200).json((await courseService.getAll()).map((course) => ({ ...course })));
     }
 
     @ApiOperation({ description: 'Create a new course' })
+    @ApiBody({
+        type: PostCourseDTO,
+        description: 'infos about the new course',
+    })
     @Post('/')
     public async createCourse(req: Request, res: Response) {
         const { name, category, description, image } = req.body;
@@ -46,6 +52,10 @@ export class CourseController {
     }
 
     @ApiOperation({ description: 'Get details of a course' })
+    @ApiResponse({
+        status: 404,
+        description: 'Course not found',
+    })
     @Get('/:courseId')
     public async courseById(req: Request, res: Response) {
         const courseId = Number(req.params.courseId);
@@ -54,6 +64,14 @@ export class CourseController {
     }
 
     @ApiOperation({ description: 'Modify a course' })
+    @ApiBody({
+        type: PutCourseDTO,
+        description: 'infos to be updated',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Course not found',
+    })
     @Put('/:courseId')
     public async updateCourse(req: Request, res: Response) {
         const { name, category, description, image } = req.body;
@@ -75,6 +93,10 @@ export class CourseController {
     }
 
     @ApiOperation({ description: 'Delete a course from the database.' })
+    @ApiResponse({
+        status: 404,
+        description: 'Course not found',
+    })
     @Delete('/:courseId')
     public async deleteCourse(req: Request, res: Response) {
         const { courseId } = req.params;
@@ -90,10 +112,21 @@ export class CourseController {
         return res.status(200).json({});
     }
 
+    @ApiOperation({ description: 'Get a list of chapters for a given course' })
+    @ApiResponse({
+        status: 404,
+        description: 'Course not found',
+    })
     @Get('/:courseId/list')
-    public async allChaptersByCourse(req: Request, res: Response) {
+    public async getChaptersByCourse(req: Request, res: Response) {
         const { courseId } = req.params;
-        res.status(200).json({ ...await chapterService.getByCourse(Number(courseId)) });
+        const course = await courseService.getById(Number(courseId));
+
+        if (!course)
+            throw new NotFoundException('Course not found');
+
+        let chapters = await chapterService.getByCourse(Number(courseId));
+        res.status(200).json(chapters);
     }
 
 }
