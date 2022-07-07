@@ -32,7 +32,12 @@ export class LabService {
     public async getByName(name: string): Promise<Lab | null> {
         return this.labRepository.findOneBy({ name });
     }
-    
+    public async getByChapter(chapterId: number): Promise<Lab[]> {
+        return this.labRepository.createQueryBuilder()
+            .leftJoin("Lab.chapter", "Chapter")
+            .where("Chapter.id = :chapterId", { chapterId })
+            .getMany();
+    }
 }
 
 export default new LabService();

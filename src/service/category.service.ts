@@ -39,5 +39,6 @@ export class CategoryService {
 	public async getByName(name: string): Promise<Category | null> {
 		return this.categoryRepository.findOneBy({ name });
 	}
+	
 }
 export default new CategoryService();

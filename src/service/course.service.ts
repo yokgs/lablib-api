@@ -32,10 +32,10 @@ export class CourseService {
     public async getByName(name: string): Promise<Course | null> {
         return this.courseRepository.findOneBy({ name });
     }
-    public async getByCategory(categoryId: number): Promise<Course[] | null> {
-        return this.courseRepository.createQueryBuilder('course')
-            .leftJoinAndSelect("course.category", "category")
-            .where("category.id = :categoryId", { categoryId })
+    public async getByCategory(categoryId: number): Promise<Course[]> {
+        return this.courseRepository.createQueryBuilder()
+            .leftJoin("Course.category", "Category")
+            .where("Category.id = :categoryId", { categoryId })
             .getMany();
     }
 

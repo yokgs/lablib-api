@@ -35,10 +35,10 @@ export class ChapterService {
         return this.chapterRepository.findOneBy({ name });
     }
 
-    public async getByCourse(courseId: number): Promise<Chapter[] | null> {
-        return this.chapterRepository.createQueryBuilder('chapter')
-            .leftJoinAndSelect("chapter.course", "course")
-            .where("course.id = :courseId", { courseId })
+    public async getByCourse(courseId: number): Promise<Chapter[]> {
+        return this.chapterRepository.createQueryBuilder()
+            .leftJoin("Chapter.course", "Course")
+            .where("Course.id = :courseId", { courseId })
             .getMany();
     }
 }

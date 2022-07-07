@@ -1,20 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { config } from './config/env.config';
 
-async function bootstrap() {
+export async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  const config = new DocumentBuilder()
+  const _config = new DocumentBuilder()
     .setTitle('LabLib API')
     .setDescription('Learning Platform and much more...')
     .setVersion('1.0')
     .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  const document = SwaggerModule.createDocument(app, _config);
+  SwaggerModule.setup('docs/v1', app, document);
 
-  await app.listen(3000);
+  return await app.listen(config.port);
 
 }
-bootstrap();

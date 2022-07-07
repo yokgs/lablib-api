@@ -22,10 +22,10 @@ async function main() {
 		console.log('Connected to DB');
 
 		const app = new App();
-		const server = app.listen(() => {
+		const server = await app.listen(() => {
 			console.log(`App at: http://localhost:${config.port}`);
 		});
-
+		
 		process.on('SIGTERM', () => {
 			console.log('SIGTERM signal received.');
 			server.close(() => {

@@ -2,26 +2,22 @@ import { Request, Response } from 'express';
 import moment from 'moment';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { Lab } from '../model/lab';
-import { ChapterService } from '../service/chapter.service';
+import chapterService, { ChapterService } from '../service/chapter.service';
 import labService from '../service/lab.service';
 import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Lab')
-@Controller('lab')
+@Controller('api/v1/lab')
 export class LabController {
 
-    private chapterService: ChapterService;
-
-    constructor() {
-        this.chapterService = new ChapterService();
-    }
-
+    @ApiOperation({ description: 'Get a list of labs' })
     @Get('/')
     public async allLabs(req: Request, res: Response) {
         res.status(200).json((await labService.getAll()).map((lab) => ({ ...lab, category: lab.chapter.name })));
     }
 
+    @ApiOperation({ description: 'Create a new lab' })
     @Post('/')
     public async createLab(req: Request, res: Response) {
         const { name, duration, chapter } = req.body;
@@ -33,7 +29,7 @@ export class LabController {
         if (await labService.getByName(name)) {
             throw new BadRequestException('Lab under this name already exists');
         }
-        let $chapter = await this.chapterService.getById(Number(chapter));
+        let $chapter = await chapterService.getById(Number(chapter));
         if (!$chapter) {
             throw new BadRequestException('Cannot find chapter ' + chapter);
         }
@@ -47,6 +43,7 @@ export class LabController {
         res.status(201).json({ ...newLab, category: lab.chapter.name });
     }
 
+    @ApiOperation({ description: 'Get details of a lab' })
     @Get('/:labId')
     public async labById(req: Request, res: Response) {
         const labId = Number(req.params.labId);
@@ -58,6 +55,7 @@ export class LabController {
         res.status(200).json({ ...lab });
     }
 
+    @ApiOperation({ description: 'Modify a lab' })
     @Put('/:labId')
     public async updateLab(req: Request, res: Response) {
         const { name, duration, image } = req.body;
@@ -76,6 +74,8 @@ export class LabController {
 
         return res.status(200).json({ ...updatedLab });
     }
+
+    @ApiOperation({ description: 'Delete a lab from the database.' })
     @Delete('/:labId')
     public async deleteLab(req: Request, res: Response) {
         const { labId } = req.params;

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CategoryController}  from './controller/category.controller';
+import { CategoryController } from './controller/category.controller';
 import { ChapterController } from './controller/chapter.controller';
 import { CourseController } from './controller/course.controller';
 import { LabController } from './controller/lab.controller';
@@ -14,4 +14,5 @@ import { StepService } from './service/step.service';
   controllers: [CategoryController, CourseController, ChapterController, LabController, StepController],
   providers: [CategoryService, CourseService, ChapterService, LabService, StepService],
 })
-export class AppModule {}
+
+export class AppModule { }

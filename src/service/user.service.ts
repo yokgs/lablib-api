@@ -1,7 +1,9 @@
 import { Repository } from 'typeorm';
 import { PostgresDataSource } from '../config/datasource.config';
 import { User } from '../model/user';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 class UserService {
 
 	private userRepository: Repository<User>;

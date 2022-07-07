@@ -1,5 +1,10 @@
+import { INestApplication } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import bodyParser from 'body-parser';
 import express, { Application } from 'express';
+import { AppModule } from './app.module';
 import { config } from './config/env.config';
 import { errorHandler } from './error/errorhandler.handler';
 import { NotFoundException } from './error/NotFoundException.error';
@@ -10,9 +15,12 @@ import labRouter from './route/lab.router';
 import stepRouter from './route/step.router';
 
 export class App {
+
     private _app: Application;
+    private app: INestApplication;
 
     constructor() {
+
         this._app = express();
         this._app.use(bodyParser.urlencoded({ extended: true }));
         this._app.use(express.json({
@@ -24,12 +32,13 @@ export class App {
          * Not Found Handler
          */
 
-        this._app.use(this.notFound);
+        
 
         /**
          * Error Handler
          */
         this._app.use(errorHandler);
+
     }
 
     private mapRoutes() {
@@ -44,7 +53,7 @@ export class App {
         this._app.use('/api/v1/lab', labRouter.router);
         this._app.use('/api/v1/step', stepRouter.router);
 
-        this._app.get('/', (req, res) => res.send('welcome to lablib :) <a href="/api/v1/category">start from here</a>'));
+        this._app.get('/', (req, res) => res.send('welcome to lablib :) <a href="/api/v1/category">start from here</a>  <a href="/docs/v1">read the documentation</a> '));
     }
 
     private notFound(
@@ -55,7 +64,23 @@ export class App {
         next(new NotFoundException());
     }
 
-    public listen(callback: () => void) {
-        return this._app.listen(config.port, callback);
+    private async bootstrap() {
+        this.app = await NestFactory.create(AppModule, new ExpressAdapter(this._app));
+        const _config = new DocumentBuilder()
+            .setTitle('LabLib API')
+            .setDescription('Learning Platform and much more...')
+            .setVersion('1.0')
+            .build();
+
+        const document = SwaggerModule.createDocument(this.app, _config);
+
+        SwaggerModule.setup('docs', this.app, document);
+        this._app.use(this.notFound);
     }
+
+    public async listen(callback: () => void) {
+        await this.bootstrap();
+        return this.app.listen(config.port, callback);
+    }
+
 }

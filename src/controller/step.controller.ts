@@ -5,17 +5,19 @@ import { Step } from '../model/step';
 import stepService from '../service/step.service';
 import labService from '../service/lab.service';
 import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Step')
-@Controller('step')
+@Controller('api/v1/step')
 export class StepController {
 
+    @ApiOperation({ description: 'Get a list of steps' })
     @Get('/')
     public async allSteps(req: Request, res: Response) {
         res.status(200).json((await stepService.getAll()).map((step) => ({ ...step, lab: step.lab.name })));
     }
 
+    @ApiOperation({ description: 'Create a new step' })
     @Post('/')
     public async createStep(req: Request, res: Response) {
         const { name, lab, content, demo, rang } = req.body;
@@ -44,6 +46,7 @@ export class StepController {
         res.status(200).json({ ...newStep, lab: step.lab.name });
     }
 
+    @ApiOperation({ description: 'Get details of a step' })
     @Get('/:stepId')
     public async stepById(req: Request, res: Response) {
         const stepId = Number(req.params.id);
@@ -55,6 +58,7 @@ export class StepController {
         res.status(200).json({ ...step });
     }
 
+    @ApiOperation({ description: 'Modify a step' })
     @Put('/:stepId')
     public async updateStep(req: Request, res: Response) {
         const { name, lab, description, image } = req.body;
@@ -78,6 +82,7 @@ export class StepController {
         return res.status(200).json({ ...updatedStep });
     }
 
+    @ApiOperation({ description: 'Delete a step from the database.' })
     @Delete('/:stepId')
     public async deleteStep(req: Request, res: Response) {
         const { stepId } = req.params;

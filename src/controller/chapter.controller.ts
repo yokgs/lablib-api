@@ -4,10 +4,10 @@ import { Chapter } from '../model/chapter';
 import { ChapterService } from '../service/chapter.service';
 import { CourseService } from '../service/course.service';
 import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Chapter')
-@Controller('chapter')
+@Controller('api/v1/chapter')
 export class ChapterController {
 
     private chapterService: ChapterService;
@@ -16,11 +16,13 @@ export class ChapterController {
         this.chapterService = new ChapterService();
         this.courseService = new CourseService();
     }
-
+    @ApiOperation({ description: 'Get a list of chapters' })
     @Get('/')
     public async allChapters(req: Request, res: Response) {
         res.status(200).json((await this.chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name })));
     }
+
+    @ApiOperation({ description: 'Create a new chapter' })
     @Post('/')
     public async createChapter(req: Request, res: Response) {
         const { name, course, description, image } = req.body;
@@ -44,6 +46,7 @@ export class ChapterController {
 
         res.status(201).json({ ...newChapter, course: chapter.course.name });
     }
+@ApiOperation({ description: 'Get details of a chapter' })
     @Get('/:chapterId')
     public async chapterById(req: Request, res: Response) {
         const chapterId = Number(req.params.chapterId);
@@ -54,6 +57,8 @@ export class ChapterController {
         }
         res.status(200).json({ ...chapter });
     }
+
+    @ApiOperation({ description: 'Modify a chapter' })
     @Put('/:chapterId')
     public async updateChapter(req: Request, res: Response) {
         const { name, course } = req.body;
@@ -74,6 +79,8 @@ export class ChapterController {
 
         return res.status(200).json({ ...updatedChapter });
     }
+
+    @ApiOperation({ description: 'Delete a chapter from the database.' })
     @Delete('/:chapterId')
     public async deleteChapter(req: Request, res: Response) {
         const { chapterId } = req.params;
