@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class PostCategoryDTO{
+export class PostCourseDTO{
     @ApiProperty({
         required: true
     })
@@ -12,4 +12,9 @@ export class PostCategoryDTO{
         required: false
     })
     description: string;
+
+    @ApiProperty({
+        required: true
+    })
+    category: string;
 }

@@ -1,15 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class PostCategoryDTO{
+export class PostChapterDTO {
     @ApiProperty({
         required: true
     })
     name: string;
 
     @ApiProperty({
-        default: '',
-        maxLength: 255,
-        required: false
+        required: true
     })
-    description: string;
+    course: string;
 }
