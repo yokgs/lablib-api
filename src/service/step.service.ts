@@ -32,7 +32,7 @@ export class StepService {
     public async getByName(name: string): Promise<Step | null> {
         return this.stepRepository.findOneBy({ name });
     }
-    public async getByCategory(labId: number): Promise<Step[]> {
+    public async getByLab(labId: number): Promise<Step[]> {
         return this.stepRepository.createQueryBuilder()
             .leftJoin("Step.lab", "Lab")
             .where("Lab.id = :labId", { labId })

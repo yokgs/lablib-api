@@ -6,16 +6,20 @@ import { User } from "./user";
 export class Lab extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number
+
     @Column()
     name: string
+
     @Column({
         default: 1800
     })
     duration: number
+
     @Column({
         default: "easy"
     })
     level: string
+
     @ManyToOne(
         () => User,
         user => user.labs
@@ -24,6 +28,7 @@ export class Lab extends BaseEntity {
         name: 'user_id'
     })
     user: User
+
     @ManyToOne(
         () => Chapter,
         chapter => chapter.labs
@@ -32,6 +37,7 @@ export class Lab extends BaseEntity {
         name: 'chapter_id'
     })
     chapter: Chapter
+    
     @OneToMany(
         () => Step,
         step => step.lab

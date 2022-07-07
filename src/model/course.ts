@@ -5,15 +5,19 @@ import { Chapter } from "./chapter";
 export class Course extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number
+    
     @Column()
     name: string
+
     @Column({
         default: "",
         length: 255
     })
     description: string
-    @Column({nullable: true})
+
+    @Column({ nullable: true })
     image: string
+
     @ManyToOne(
         () => Category,
         category => category.courses

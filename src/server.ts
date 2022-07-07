@@ -12,6 +12,7 @@ import categoryRouter from './route/category.router';
 import chapterRouter from './route/chapter.router';
 import courseRouter from './route/course.router';
 import labRouter from './route/lab.router';
+import searchRouter from './route/search.router';
 import stepRouter from './route/step.router';
 
 export class App {
@@ -32,7 +33,7 @@ export class App {
          * Not Found Handler
          */
 
-        
+
 
         /**
          * Error Handler
@@ -43,17 +44,22 @@ export class App {
 
     private mapRoutes() {
 
-        /**
-         * Add your routes here
-         */
-
         this._app.use('/api/v1/category', categoryRouter.router);
         this._app.use('/api/v1/course', courseRouter.router);
         this._app.use('/api/v1/chapter', chapterRouter.router);
         this._app.use('/api/v1/lab', labRouter.router);
         this._app.use('/api/v1/step', stepRouter.router);
+        this._app.use('/api/v1/search', searchRouter.router);
 
-        this._app.get('/', (req, res) => res.send('welcome to lablib :) <a href="/api/v1/category">start from here</a>  <a href="/docs/v1">read the documentation</a> '));
+        this._app.get('/', (req, res) => res.send(`Welcome to LabLib :)
+        <ul>
+            <li>
+                <a href="/api/v1/category">start from here</a>
+            </li>
+            <li>
+                <a href="/docs">read the documentation</a>
+            </li>
+        </ul>`));
     }
 
     private notFound(
@@ -75,6 +81,7 @@ export class App {
         const document = SwaggerModule.createDocument(this.app, _config);
 
         SwaggerModule.setup('docs', this.app, document);
+
         this._app.use(this.notFound);
     }
 
