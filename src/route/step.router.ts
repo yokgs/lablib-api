@@ -2,6 +2,7 @@ import { Router } from "express";
 import stepController from "../controller/step.controller";
 
 class StepRouter {
+
     public router: Router;
 
     constructor() {
@@ -10,7 +11,7 @@ class StepRouter {
     }
 
     private routes() {
-        this.router.get('/',stepController.allSteps);
+        this.router.get('/',stepController.getSteps);
         this.router.post('/', stepController.createStep);
         this.router.get('/:stepId', stepController.stepById);
         this.router.put('/:stepId', stepController.updateStep);

@@ -2,6 +2,7 @@ import { Router } from "express";
 import labController from "../controller/lab.controller";
 
 class LabRouter {
+
     public router: Router;
 
     constructor() {
@@ -10,12 +11,12 @@ class LabRouter {
     }
 
     private routes() {
-        this.router.get('/', labController.allLabs);
+        this.router.get('/', labController.getLabs);
         this.router.post('/', labController.createLab);
         this.router.get('/:labId', labController.labById);
         this.router.put('/:labId', labController.updateLab);
         this.router.delete('/:labId', labController.deleteLab);
-        this.router.get('/:labId/list',labController.allStepsByLab);
+        this.router.get('/:labId/list',labController.getStepsByLab);
     }
 
 }
