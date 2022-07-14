@@ -15,10 +15,6 @@ import { PutChapterDTO } from '../dto/put.chapter.dto';
 export class ChapterController {
 
     @ApiOperation({ description: 'Get a list of chapters' })
-    @ApiResponse({
-        status: 404,
-        description: 'Chapter not found',
-    })
     @Get('/')
     public async getChapters(req: Request, res: Response) {
         res.status(200).json((await chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name })));
@@ -37,9 +33,6 @@ export class ChapterController {
             throw new BadRequestException('Missing required fields');
         }
 
-        if (await chapterService.getByName(name)) {
-            throw new BadRequestException('Chapter under this name already exists');
-        }
         let $course = await courseService.getByName(course);
         if (!$course) {
             throw new NotFoundException('Cannot find course ' + course);

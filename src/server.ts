@@ -3,14 +3,20 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import bodyParser from 'body-parser';
+import fileUpload from 'express-fileupload'
+import cookieSession from 'cookie-session';
 import express, { Application } from 'express';
+import morgan from 'morgan';
 import { AppModule } from './app.module';
 import { config } from './config/env.config';
+import { securityMiddleware } from './config/security.config';
 import { errorHandler } from './error/errorhandler.handler';
 import { NotFoundException } from './error/NotFoundException.error';
+import { decodeUser } from './middleware/decodeuser.middleware';
 import categoryRouter from './route/category.router';
 import chapterRouter from './route/chapter.router';
 import courseRouter from './route/course.router';
+import imageRouter from './route/image.router';
 import labRouter from './route/lab.router';
 import searchRouter from './route/search.router';
 import stepRouter from './route/step.router';
@@ -23,17 +29,9 @@ export class App {
     constructor() {
 
         this._app = express();
-        this._app.use(bodyParser.urlencoded({ extended: true }));
-        this._app.use(express.json({
-            limit: '10mb'
-        }));
+        this._app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+        this.mapMiddleware();
         this.mapRoutes();
-
-        /**
-         * Not Found Handler
-         */
-
-
 
         /**
          * Error Handler
@@ -50,6 +48,7 @@ export class App {
         this._app.use('/api/v1/lab', labRouter.router);
         this._app.use('/api/v1/step', stepRouter.router);
         this._app.use('/api/v1/search', searchRouter.router);
+        this._app.use('/api/v1/image', imageRouter.router);
 
         this._app.get('/', (req, res) => res.send(`Welcome to LabLib :)
         <ul>
@@ -60,6 +59,47 @@ export class App {
                 <a href="/docs">read the documentation</a>
             </li>
         </ul>`));
+    }
+    private mapMiddleware() {
+        this._app.use(fileUpload({
+            createParentPath: true
+        }));
+        this._app.use(config.NODE_ENV !== "production" ? morgan('dev') : morgan('combined'));
+        this._app.use(securityMiddleware);
+        /*this._app.use(
+            cors({
+                origin: (origin, callback) => {
+                    console.log(origin);
+                    if (origin && this._origins.indexOf(origin) !== -1) {
+                        callback(null, true);
+                    } else {
+                        callback(new Error('Not allowed by CORS'));
+                    }
+                },
+                credentials: true
+            }));*/
+        this._app.use(
+            cookieSession({
+                name: 'access_token',
+                domain: config.COOKIE_DOMAIN,
+                signed: false,
+                httpOnly: true,
+                secure: config.NODE_ENV === 'production',
+                sameSite: "none"
+            })
+        );
+        this._app.use(
+            decodeUser
+        );
+        this._app.use(
+            express.json({
+                limit: '10mb',
+            })
+        );
+
+        /**
+         * Add your middlewares here
+         */
     }
 
     private notFound(

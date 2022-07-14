@@ -9,6 +9,8 @@ import { PostCategoryDTO } from '../dto/post.category.dto'
 import { NotFoundException } from '../error/NotFoundException.error';
 import { PutCategoryDTO } from '../dto/put.category.dto';
 import { number } from 'joi';
+import { ImageEntity } from '../model/image';
+import imageService from '../service/image.service';
 
 @ApiTags('Category')
 @Controller('api/v1/category')
@@ -44,8 +46,8 @@ export class CategoryController {
     })
     @Post('/')
     public async createCategory(req: Request, res: Response) {
-        const { name, image, description } = req.body;
-
+        const { name, description } = req.body;
+        const { image } = req.files;
         if (!name) {
             throw new BadRequestException('Missing required fields');
         }
@@ -53,10 +55,13 @@ export class CategoryController {
         if (await categoryService.getByName(name)) {
             throw new BadRequestException('Category under this name already exists');
         }
+        const newImage = new ImageEntity();
+        newImage.content = image;
+        let $image = await imageService.create(newImage);
 
         const category = new Category();
         category.name = name;
-        category.image = image;
+        category.image = $image.id;
         category.description = description;
         const newCategory = await categoryService.create(category);
         res.status(200).json({ ...newCategory });
@@ -104,9 +109,10 @@ export class CategoryController {
     })
     @Put('/:categoryId')
     public async updateCategory(req: Request, res: Response) {
-        const { name, image, description } = req.body;
+        const { name, description } = req.body;
 
         const { categoryId } = req.params;
+        const { image } = req.files;
         const category = await categoryService.getById(Number(categoryId));
 
         if (!category) {
@@ -115,7 +121,13 @@ export class CategoryController {
 
         name && (category.name = name);
         description && (category.description = description);
-        image && (category.image = image);
+        if (image) {
+            await imageService.delete(category.image);
+            const newImage = new ImageEntity();
+            newImage.content = image;
+            let $image = await imageService.create(newImage);
+            category.image = $image.id;
+        }
 
         const updatedCategory = await categoryService.update(Number(categoryId), category);
 
@@ -147,6 +159,8 @@ export class CategoryController {
         const { categoryId } = req.params;
 
         const category = await categoryService.getById(Number(categoryId));
+
+        await imageService.delete(category.image);
 
         if (!category) {
             throw new NotFoundException('Category not found');

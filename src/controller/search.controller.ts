@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
-import { BadRequestException } from '../error/BadRequestException.error';
 import { Category } from '../model/category';
-import categoryService from '../service/category.service';
-import courseService from '../service/course.service';
+import searchService from '../service/search.service';
 import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiBody, ApiOkResponse, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { NotFoundException } from '../error/NotFoundException.error';
 import { SearchResult } from '../types/searchresult'
-@ApiTags('Category', 'Course', 'Chapter', 'Lab', 'Step')
+import { Course } from '../model/course';
+import { Chapter } from '../model/chapter';
+
+@ApiTags('Search')
 @Controller('api/v1/search')
 export class SearchController {
 
@@ -19,14 +19,48 @@ export class SearchController {
     @Get('/')
     public async getResults(req: Request, res: Response) {
         const { search } = req.body;
-        const input2matcher = '[\\w\\W]*' + search.text.replace(/[\W]+/g, '').replaceAll('', '[\\w\\W]*');
-        let searchRegExp = new RegExp(input2matcher, 'gi');
-        let allCategories = await categoryService.getAll();
-        let allCourses = await courseService.getAll();
-        const categories = allCategories.filter(x => searchRegExp.test(x.name) || searchRegExp.test(x.description));
-        const courses = allCourses.filter(x => searchRegExp.test(x.name) || searchRegExp.test(x.description));
 
-        res.status(200).json({ categories, courses, input: search.text });
+        const categories = searchService.getCategories(search.text);
+        const courses = searchService.getCourses(search.text);
+        const chapters = searchService.getChapters(search.text);
+
+        res.status(200).json({ categories, courses, chapters, input: search.text });
+    }
+
+    @ApiOperation({ description: 'Get list of categories that match the given search query' })
+    @ApiOkResponse({
+        description: 'List of the categories',
+        type: Array<Category>,
+    })
+    @Get('/category')
+    public async getCategories(req: Request, res: Response) {
+        const { search } = req.body;
+        const categories = searchService.getCategories(search.text);
+        res.status(200).json(categories);
+    }
+
+    @ApiOperation({ description: 'Get list of courses that match the given search query' })
+    @ApiOkResponse({
+        description: 'List of the courses',
+        type: Array<Course>,
+    })
+    @Get('/course')
+    public async getCourses(req: Request, res: Response) {
+        const { search } = req.body;
+        const courses = searchService.getCourses(search.text);
+        res.status(200).json(courses);
+    }
+
+    @ApiOperation({ description: 'Get list of chapters that match the given search query' })
+    @ApiOkResponse({
+        description: 'List of the chapters',
+        type: Array<Chapter>,
+    })
+    @Get('/chapter')
+    public async getChapters(req: Request, res: Response) {
+        const { search } = req.body;
+        const chapters = searchService.getChapters(search.text);
+        res.status(200).json(chapters);
     }
 
 }

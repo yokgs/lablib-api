@@ -7,5 +7,6 @@ declare namespace Express {
 		session: {
 			access_token?: string;
 		};
+		files?: any;
 	}
 }

@@ -9,6 +9,8 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { NotFoundException } from '../error/NotFoundException.error';
 import { PostCourseDTO } from '../dto/post.course.dto';
 import { PutCourseDTO } from '../dto/put.course.dto';
+import imageService from '../service/image.service';
+import { ImageEntity } from '../model/image';
 
 @ApiTags('Course')
 @Controller('api/v1/course')
@@ -26,8 +28,8 @@ export class CourseController {
     })
     @Post('/')
     public async createCourse(req: Request, res: Response) {
-        const { name, category, description, image } = req.body;
-
+        const { name, category, description } = req.body;
+        const { image } = req.files;
         if (!category || !name) {
             throw new BadRequestException('Missing required fields');
         }
@@ -42,13 +44,17 @@ export class CourseController {
         }
         const course = new Course();
 
+        let newImage = new ImageEntity();
+        newImage.content = image;
+        let $image = await imageService.create(newImage)
+
         course.name = name;
         course.description = description;
-        course.image = image;
+        course.image = $image.id;
         course.category = $category;
         const newCourse = await courseService.create(course);
 
-        res.status(201).json({ ...newCourse, category: course.category.name });
+        res.status(200).json({ ...newCourse, category: course.category.name });
     }
 
     @ApiOperation({ description: 'Get details of a course' })
@@ -83,7 +89,14 @@ export class CourseController {
             throw new NotFoundException('Course not found');
         }
 
-        course.image = image || course.image;
+        if (image) {
+            await imageService.delete(course.image);
+            const newImage = new ImageEntity();
+            newImage.content = image;
+            let $image = await imageService.create(newImage);
+            course.image = $image.id;
+        }
+
         course.description = description || course.description;
         course.name = name || course.name;
 
@@ -102,7 +115,7 @@ export class CourseController {
         const { courseId } = req.params;
 
         const course = await courseService.getById(Number(courseId));
-
+        await imageService.delete(course.image);
         if (!course) {
             throw new NotFoundException('Course not found');
         }

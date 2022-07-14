@@ -4,11 +4,12 @@ import { BadRequestException } from '../error/BadRequestException.error';
 import { Step } from '../model/step';
 import stepService from '../service/step.service';
 import labService from '../service/lab.service';
-import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Delete, Put, Param } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { NotFoundException } from '../error/NotFoundException.error';
 import { PostStepDTO } from '../dto/post.step.dto';
 import { PutStepDTO } from '../dto/put.step.dto';
+import { number } from 'joi';
 
 @ApiTags('Step')
 @Controller('api/v1/step')
@@ -73,7 +74,9 @@ export class StepController {
         res.status(200).json({ ...step });
     }
 
+    
     @ApiOperation({ description: 'Modify a step' })
+    @ApiParam({ name: 'stepId', type: number })
     @ApiResponse({
         status: 404,
         description: 'Step not found',
@@ -83,6 +86,7 @@ export class StepController {
         const { name, lab, description, image } = req.body;
 
         const { stepId } = req.params;
+        
         const step = await stepService.getById(Number(stepId));
 
         if (!step) {
@@ -121,3 +125,4 @@ export class StepController {
 }
 
 export default new StepController();
+

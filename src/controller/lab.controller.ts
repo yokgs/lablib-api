@@ -86,12 +86,10 @@ export class LabController {
         if (!lab) {
             throw new NotFoundException('Lab not found');
         }
-
         lab.name = name || lab.name;
         lab.duration = duration || lab.duration;
 
         const updatedLab = await labService.update(Number(labId), lab);
-
         return res.status(200).json({ ...updatedLab });
     }
 
