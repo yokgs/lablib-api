@@ -6,11 +6,9 @@ export const config = {
 	port: process.env.PORT || 3000,
 	NODE_ENV: process.env.NODE_ENV || 'development',
 	JWT_SECRET: process.env.JWT_SECRET || '',
-	CORS_ORIGIN: 'http://localhost:' + (process.env.PORT || 3000),
+	CORS_ORIGIN: 'http://localhost:' + (process.env.PORT || 5000),
 	COOKIE_DOMAIN: 'localhost',
 	DB_URL: process.env.DATABASE_URL,
-	DB_PASSWORD: 'MarwaHind123',
-	DB_NAME: 'LPDB',
-	DB_USER: 'postgres',
-	DB_PORT: 5432
-};
+	EMAIL_USERNAME: process.env.EMAIL_USERNAME || 'email@example.com',
+	EMAIL_PASSWORD: process.env.EMAIL_PASSWORD || '123'
+}

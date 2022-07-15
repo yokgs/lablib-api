@@ -21,14 +21,16 @@ import imageRouter from './route/image.router';
 import labRouter from './route/lab.router';
 import searchRouter from './route/search.router';
 import stepRouter from './route/step.router';
+import userRouter from './route/user.router';
+import cors from 'cors';
 
 export class App {
 
     private _app: Application;
     private app: INestApplication;
+    private _origins: string[] = ["http://localhost:3000", "https://admin-lablib.herokuapp.com"];
 
     constructor() {
-
         this._app = express();
         this._app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
         this.mapMiddleware();
@@ -43,6 +45,7 @@ export class App {
 
     private mapRoutes() {
 
+        this._app.use('/api/v1/user', userRouter.router);
         this._app.use('/api/v1/category', categoryRouter.router);
         this._app.use('/api/v1/course', courseRouter.router);
         this._app.use('/api/v1/chapter', chapterRouter.router);
@@ -70,26 +73,26 @@ export class App {
         }));
         this._app.use(methodOverride(function (req, res) {
             if (req.body && typeof req.body === 'object' && '_method' in req.body) {
-              // look in urlencoded POST bodies and delete it
-              var method = req.body._method
-              delete req.body._method
-              return method
+                // look in urlencoded POST bodies and delete it
+                var method = req.body._method
+                delete req.body._method
+                return method
             }
-          }))
+        }))
         this._app.use(config.NODE_ENV !== "production" ? morgan('dev') : morgan('combined'));
         this._app.use(securityMiddleware);
-        /*this._app.use(
+        this._app.use(
             cors({
                 origin: (origin, callback) => {
                     console.log(origin);
-                    if (origin && this._origins.indexOf(origin) !== -1) {
+                    if (true /*origin && this._origins.indexOf(origin) !== -1*/) {
                         callback(null, true);
                     } else {
                         callback(new Error('Not allowed by CORS'));
                     }
                 },
                 credentials: true
-            }));*/
+            }));
         this._app.use(
             cookieSession({
                 name: 'access_token',

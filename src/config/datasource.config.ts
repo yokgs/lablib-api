@@ -19,6 +19,7 @@ const PostgresDataSource = new DataSource({
 		rejectUnauthorized: false
 	},
 	namingStrategy: new SnakeNamingStrategy(),
+	synchronize: true
 });
 
 export { PostgresDataSource };
