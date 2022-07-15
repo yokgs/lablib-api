@@ -110,7 +110,7 @@ export class CategoryController {
     @Put('/:categoryId')
     public async updateCategory(req: Request, res: Response) {
         const { name, description } = req.body;
-
+console.log('PPPPPPPPPut',req.files)
         const { categoryId } = req.params;
         const { image } = req.files;
         const category = await categoryService.getById(Number(categoryId));

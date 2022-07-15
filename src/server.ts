@@ -60,6 +60,9 @@ export class App {
                 <a href="/docs">read the documentation</a>
             </li>
         </ul>`));
+        this._app.put('/', function (req, res) {
+            console.log(req.files);
+        })
     }
     private mapMiddleware() {
         this._app.use(fileUpload({

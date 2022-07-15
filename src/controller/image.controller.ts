@@ -36,6 +36,8 @@ export class ImageController {
             throw new NotFoundException('Image not found');
         }
         let newImage = await sharp(image.content).png().resize(Number(width)).toBuffer();
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Content-Disposition', 'attachment; filename="' + uuid + '.png"');
         res.status(200).send(newImage);
     }
 
