@@ -56,7 +56,7 @@ export class CategoryController {
             throw new BadRequestException('Category under this name already exists');
         }
         const newImage = new ImageEntity();
-        newImage.content = image;
+        newImage.content = image.data;
         let $image = await imageService.create(newImage);
 
         const category = new Category();
@@ -124,7 +124,7 @@ console.log('PPPPPPPPPut',req.files)
         if (image) {
             await imageService.delete(category.image);
             const newImage = new ImageEntity();
-            newImage.content = image;
+            newImage.content = image.data;
             let $image = await imageService.create(newImage);
             category.image = $image.id;
         }
