@@ -3,7 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import bodyParser from 'body-parser';
-import fileUpload from 'express-fileupload'
+import fileUpload from 'express-fileupload';
+import methodOverride from 'method-override';
 import cookieSession from 'cookie-session';
 import express, { Application } from 'express';
 import morgan from 'morgan';
@@ -64,6 +65,14 @@ export class App {
         this._app.use(fileUpload({
             createParentPath: true
         }));
+        this._app.use(methodOverride(function (req, res) {
+            if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+              // look in urlencoded POST bodies and delete it
+              var method = req.body._method
+              delete req.body._method
+              return method
+            }
+          }))
         this._app.use(config.NODE_ENV !== "production" ? morgan('dev') : morgan('combined'));
         this._app.use(securityMiddleware);
         /*this._app.use(
