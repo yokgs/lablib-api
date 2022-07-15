@@ -83,15 +83,7 @@ export class App {
         this._app.use(securityMiddleware);
         this._app.use(
             cors({
-                origin: (origin, callback) => {
-                    console.log(origin);
-                    if (true /*origin && this._origins.indexOf(origin) !== -1*/) {
-                        callback(null, true);
-                    } else {
-                        callback(new Error('Not allowed by CORS'));
-                    }
-                },
-                credentials: true
+                origin: '*'
             }));
         this._app.use(
             cookieSession({
