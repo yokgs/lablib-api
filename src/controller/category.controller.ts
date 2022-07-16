@@ -57,24 +57,16 @@ console.log(name, description)
             throw new BadRequestException('Category under this name already exists');
         }
         let $image = {id: null};
-        console.log('pre if')
         if (req.files && req.files.image) {
-            console.log('nice in if')
             let image = req.files.image;
-            console.log('img here')
             const newImage = new ImageEntity();
             newImage.content = image.data;
             $image = await imageService.create(newImage);
-            console.log('created new image')
         }
-        console.log('out if')
-
 
         const category = new Category();
         category.name = name;
-        console.log('pre cat ass')
         category.image = $image.id;
-        console.log('end cat ass')
 
         category.description = description;
         const newCategory = await categoryService.create(category);
