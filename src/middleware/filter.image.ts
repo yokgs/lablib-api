@@ -6,7 +6,7 @@ export const filterImage = (
     res: Response,
     next: NextFunction
 ) => {
-    if (req.files.image && /image\/[\w]+/.test(req.files.image['mimetype'])) {
+    if (!req.files || !req.files.image ||(req.files && req.files.image && /image\/[\w]+/.test(req.files.image['mimetype']))) {
         return next();
     }
 

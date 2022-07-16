@@ -29,7 +29,6 @@ export class CourseController {
     @Post('/')
     public async createCourse(req: Request, res: Response) {
         const { name, category, description } = req.body;
-        const { image } = req.files;
         if (!category || !name) {
             throw new BadRequestException('Missing required fields');
         }
@@ -44,9 +43,13 @@ export class CourseController {
         }
         const course = new Course();
 
-        let newImage = new ImageEntity();
-        newImage.content = image;
-        let $image = await imageService.create(newImage)
+        let $image = { id: null };
+        if (req.files && req.files.image) {
+            let image = req.files.image;
+            const newImage = new ImageEntity();
+            newImage.content = image.data;
+            $image = await imageService.create(newImage);
+        }
 
         course.name = name;
         course.description = description;
@@ -89,10 +92,11 @@ export class CourseController {
             throw new NotFoundException('Course not found');
         }
 
-        if (image) {
-            await imageService.delete(course.image);
+        if (req.files && req.files.image) {
+            let image = req.files.image;
+            await imageService.delete(category.image);
             const newImage = new ImageEntity();
-            newImage.content = image;
+            newImage.content = image.data;
             let $image = await imageService.create(newImage);
             course.image = $image.id;
         }

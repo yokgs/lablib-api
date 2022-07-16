@@ -82,7 +82,7 @@ export class App {
         this._app.use(config.NODE_ENV !== "production" ? morgan('dev') : morgan('combined'));
         this._app.use(securityMiddleware);
         this._app.use(function (req, res, next) {
-            res.header("Access-Control-Allow-Origin", "admin-lablib.herokuapp.com"); // update to match the domain you will make the request from
+            res.header("Access-Control-Allow-Origin", "admin-lablib.herokuapp.com");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
           });

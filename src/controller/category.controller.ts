@@ -11,6 +11,7 @@ import { PutCategoryDTO } from '../dto/put.category.dto';
 import { number } from 'joi';
 import { ImageEntity } from '../model/image';
 import imageService from '../service/image.service';
+import console from 'console';
 
 @ApiTags('Category')
 @Controller('api/v1/category')
@@ -47,7 +48,7 @@ export class CategoryController {
     @Post('/')
     public async createCategory(req: Request, res: Response) {
         const { name, description } = req.body;
-        const { image } = req.files;
+console.log(name, description)
         if (!name) {
             throw new BadRequestException('Missing required fields');
         }
@@ -55,13 +56,26 @@ export class CategoryController {
         if (await categoryService.getByName(name)) {
             throw new BadRequestException('Category under this name already exists');
         }
-        const newImage = new ImageEntity();
-        newImage.content = image.data;
-        let $image = await imageService.create(newImage);
+        let $image = {id: null};
+        console.log('pre if')
+        if (req.files && req.files.image) {
+            console.log('nice in if')
+            let image = req.files.image;
+            console.log('img here')
+            const newImage = new ImageEntity();
+            newImage.content = image.data;
+            $image = await imageService.create(newImage);
+            console.log('created new image')
+        }
+        console.log('out if')
+
 
         const category = new Category();
         category.name = name;
+        console.log('pre cat ass')
         category.image = $image.id;
+        console.log('end cat ass')
+
         category.description = description;
         const newCategory = await categoryService.create(category);
         res.status(200).json({ ...newCategory });
@@ -110,9 +124,8 @@ export class CategoryController {
     @Put('/:categoryId')
     public async updateCategory(req: Request, res: Response) {
         const { name, description } = req.body;
-console.log('PPPPPPPPPut',req.files)
+        console.log('PPPPPPPPPut', req.files)
         const { categoryId } = req.params;
-        const { image } = req.files;
         const category = await categoryService.getById(Number(categoryId));
 
         if (!category) {
@@ -121,7 +134,8 @@ console.log('PPPPPPPPPut',req.files)
 
         name && (category.name = name);
         description && (category.description = description);
-        if (image) {
+        if (req.files && req.files.image) {
+            let image = req.files.image;
             await imageService.delete(category.image);
             const newImage = new ImageEntity();
             newImage.content = image.data;
