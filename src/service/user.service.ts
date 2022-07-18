@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { PostgresDataSource } from '../config/datasource.config';
 import { User } from '../model/user';
 import { Injectable } from '@nestjs/common';
@@ -29,6 +29,9 @@ class UserService {
 
 	public async getByEmail(email: string): Promise<User | null> {
 		return this.userRepository.findOneBy({ email });
+	}
+	public async delete(id: number): Promise<DeleteResult> {
+		return this.userRepository.delete({ id });
 	}
 }
 

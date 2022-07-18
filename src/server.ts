@@ -23,6 +23,7 @@ import searchRouter from './route/search.router';
 import stepRouter from './route/step.router';
 import userRouter from './route/user.router';
 import cors from 'cors';
+import emailService from './service/email.service';
 
 export class App {
 
@@ -66,6 +67,7 @@ export class App {
         this._app.put('/', function (req, res) {
             console.log(req.files);
         })
+        emailService.sendMail(' ','yazid.slila01@gmail.com', 'test hh')
     }
     private mapMiddleware() {
         this._app.use(fileUpload({
@@ -104,10 +106,7 @@ export class App {
                 limit: '10mb',
             })
         );
-
-        /**
-         * Add your middlewares here
-         */
+        
     }
 
     private notFound(

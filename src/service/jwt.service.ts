@@ -4,16 +4,19 @@ import { IPayload } from '../types/jwtpayload.interface';
 import { IUser } from '../types/user.interface';
 
 class JwtService {
-	constructor(private readonly options?: SignOptions) {}
+	constructor(private readonly options?: SignOptions) { }
 
 	public sign(payload: IPayload): string {
 		return jwt.sign(payload, config.JWT_SECRET!, this.options);
+	}
+	public signUser(user: IUser): string {
+		return jwt.sign(user, config.JWT_SECRET!, this.options);
 	}
 
 	public verify(token: string): IPayload {
 		return jwt.verify(token, config.JWT_SECRET!, this.options) as IPayload;
 	}
-	public verifyAccount(token: string): IUser{
+	public verifyAccount(token: string): IUser {
 		return jwt.verify(token, config.JWT_SECRET!, this.options) as IUser;
 	}
 	public signRefreshToken(payload: IPayload): string {
