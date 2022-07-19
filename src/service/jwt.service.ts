@@ -1,4 +1,5 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
+import crypto from 'crypto';
 import { config } from '../config/env.config';
 import { IPayload } from '../types/jwtpayload.interface';
 import { IPasswordPayload } from '../types/passwordpayload.interface';
@@ -15,7 +16,7 @@ class JwtService {
 	}
 	public signPassword(password: IPasswordPayload): string {
 		return jwt.sign(password, config.JWT_SECRET!, {
-			expiresIn:'15min'
+			expiresIn: '15min'
 		});
 	}
 	public signInvitation(user: IUser): string {
@@ -38,6 +39,12 @@ class JwtService {
 			...this.options,
 			expiresIn: '90d',
 		});
+	}
+
+	public getOTP(token: string): string {
+		let data = token + '.' + Math.floor(new Date().getTime() / 1000 / 60 / 3);
+		let hash = crypto.createHash('sha256').update(data).digest('hex').slice(0,5);
+		return parseInt(hash, 16).toString().slice(0, 6);
 	}
 }
 

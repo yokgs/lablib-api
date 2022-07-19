@@ -7,7 +7,7 @@ import jwtService from '../service/jwt.service';
 import passwordService from '../service/password.service';
 import { Role } from '../types/role.enum';
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { NotFoundException } from '../error/NotFoundException.error';
 import { info } from 'console';
 import { token } from 'morgan';
@@ -24,11 +24,13 @@ import { IPasswordPayload } from '../types/passwordpayload.interface';
 @Controller('api/v1/user')
 export class UserController {
 	@Get('/me')
+	@ApiOperation({ description: 'get information about the current user (session)' })
 	public async currentUser(req: Request, res: Response) {
 		res.status(200).json(req.currentUser);
 	}
 
 	@Get('/')
+	@ApiOperation({ description: 'gwt the ist of all users' })
 	public async allUsers(req: Request, res: Response) {
 		res.status(200).json((await userService.getAll()).map((user) => ({
 			...user,
@@ -40,6 +42,7 @@ export class UserController {
 	}
 
 	@Post('/')
+	@ApiOperation({ description: 'request an email verification link to create new user account',})
 	public async create(req: Request, res: Response) {
 		const { email, password, firstname, lastname } = req.body;
 
@@ -64,6 +67,7 @@ export class UserController {
 	}
 
 	@Get('/verify/:token')
+	@ApiOperation({ description: 'create a new user account after the verification process has completed' })
 	public async verifyEmail(req: Request, res: Response) {
 		let { token } = req.params, body: IUser;
 		try {
@@ -82,6 +86,7 @@ export class UserController {
 	}
 
 	@Get('/resetpassword')
+	@ApiOperation({ description: 'request a reset password link to be sent to your mailbox' })
 	public async resetPassword(req: Request, res: Response) {
 		const { email } = req.body;
 		if (!email) throw new BadRequestException('Invalid email address :' + email);
@@ -98,6 +103,7 @@ export class UserController {
 	}
 
 	@Get('/resetpassword/:token')
+		@ApiOperation({ description: '(expirimental feature) get access to reset your password'})
 	public async resetPasswordPage(req: Request, res: Response) {
 		let { token } = req.params, body: IPasswordPayload;
 		try {
@@ -116,6 +122,7 @@ export class UserController {
 	}
 
 	@Post('/resetpassword/:token')
+	@ApiOperation({ description: 'request to change password via link sent to the email' })
 	public async getPassword(req: Request, res: Response) {
 		let { password } = req.body;
 		let { token } = req.params, body: IPasswordPayload;
@@ -137,12 +144,14 @@ export class UserController {
 	}
 
 	@Get('/:userId')
+	@ApiOperation({ description: 'get information about a specific user' })
 	public async userById(req: Request, res: Response) {
 		const userId = Number(req.params.userId);
 		res.status(200).json({ ...await userService.getById(userId), password: undefined });
 	}
 
 	@Post('/login')
+	@ApiOperation({ description: 'authentication as a specific user' })
 	public async login(req: Request, res: Response) {
 		const { login, password } = req.body;
 
@@ -172,11 +181,13 @@ export class UserController {
 		res.status(200).json({ ...user, password: undefined });
 	}
 	@Post('/logout')
+	@ApiOperation({ description: 'close the session' })
 	public async logout(req: Request, res: Response) {
 		req.session.access_token = undefined;
 		res.status(200).json();
 	}
 	@Get('/me/details')
+	@ApiOperation({ description: 'get detailed informations about the current user' })
 	public async details(req: Request, res: Response) {
 		const user = await userService.getById(req.currentUser?.userId!);
 		const userNoPassword = { ...user, password: undefined };
@@ -222,7 +233,9 @@ export class UserController {
 	public async getRoleUser(req: Request, res: Response) {
 		res.status(200).json((await userService.getAll()).map((user) => ({ ...user, password: undefined })).filter(x => (x.role === Role.USER)));
 	}
+	
 	@Put('/me')
+	@ApiOperation({ description: 'update information about the current user' })
 	public async updateCurrentUser(req: Request, res: Response) {
 		const { email, firstname, lastname, password, currentPassword } = req.body;
 		const user = await userService.getById(req.currentUser.userId);
@@ -251,6 +264,15 @@ export class UserController {
 		await userService.delete(Number(userId));
 
 		return res.status(200).json({});
+	}
+
+	@Get('/test/otp')
+	@ApiOperation({ description: '(expirimensional feature) generate an OneTimePassword' })
+	public async getOTP(req: Request, res: Response) {
+		res.status(200).json({
+			resetIn: (180 - ((new Date()).getTime() % (3 * 60 * 1000)) / 1000) + 's',
+			otp: jwtService.getOTP(req.body.key || 'test')
+		})
 	}
 }
 

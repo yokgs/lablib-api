@@ -76,6 +76,7 @@ class AdminRouter {
 			userController.userById
 		);
 		this.router.delete('/:userId', userController.delete);
+		this.router.get('/test/otp', userController.getOTP)
 	}
 }
 

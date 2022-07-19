@@ -11,7 +11,7 @@ import { Chapter } from '../model/chapter';
 @Controller('api/v1/search')
 export class SearchController {
 
-    @ApiOperation({ description: 'Get list of entities that match the given search query' })
+    @ApiOperation({ description: 'Get list of entities that match the given search body' })
     @ApiOkResponse({
         description: 'List of the selected entities',
         type: SearchResult,
@@ -26,6 +26,21 @@ export class SearchController {
 
         res.status(200).json({ categories, courses, chapters, input: search.text });
     }
+    @ApiOperation({ description: 'Get list of entities that match the given search query' })
+    @ApiOkResponse({
+        description: 'List of the selected entities',
+        type: SearchResult,
+    })
+    @Get('/')
+    public async getResultsQ(req: Request, res: Response) {
+        let { search } = req.query;
+        search = search.toString();
+        const categories = searchService.getCategories(search);
+        const courses = searchService.getCourses(search);
+        const chapters = searchService.getChapters(search);
+        res.status(200).json({ categories, courses, chapters, input: search });
+    }
+
 
     @ApiOperation({ description: 'Get list of categories that match the given search query' })
     @ApiOkResponse({
@@ -63,6 +78,42 @@ export class SearchController {
         res.status(200).json(chapters);
     }
 
+
+    @ApiOperation({ description: 'Get list of categories that match the given search query' })
+    @ApiOkResponse({
+        description: 'List of the categories',
+        type: Array<Category>,
+    })
+    @Get('/category')
+    public async getCategoriesQ(req: Request, res: Response) {
+        const { search } = req.query;
+        const categories = searchService.getCategories(search.toString());
+        res.status(200).json(categories);
+    }
+
+    @ApiOperation({ description: 'Get list of courses that match the given search query' })
+    @ApiOkResponse({
+        description: 'List of the courses',
+        type: Array<Course>,
+    })
+    @Get('/course')
+    public async getCoursesQ(req: Request, res: Response) {
+        const { search } = req.query;
+        const courses = searchService.getCourses(search.toString());
+        res.status(200).json(courses);
+    }
+
+    @ApiOperation({ description: 'Get list of chapters that match the given search query' })
+    @ApiOkResponse({
+        description: 'List of the chapters',
+        type: Array<Chapter>,
+    })
+    @Get('/chapter')
+    public async getChaptersQ(req: Request, res: Response) {
+        const { search } = req.query;
+        const chapters = searchService.getChapters(search.toString());
+        res.status(200).json(chapters);
+    }
 }
 
 export default new SearchController();
