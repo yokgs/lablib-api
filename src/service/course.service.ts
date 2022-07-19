@@ -16,7 +16,7 @@ export class CourseService {
         return this.courseRepository.save({ ...course, id: courseId });
     }
     public async getAll(): Promise<Course[]> {
-        return this.courseRepository.find();
+        return this.courseRepository.find({ relations: ['category', 'chapters'] });
     }
 
     public async getById(id: number): Promise<Course | null> {

@@ -5,7 +5,7 @@ import { Chapter } from "./chapter";
 export class Course extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number
-    
+
     @Column()
     name: string
 

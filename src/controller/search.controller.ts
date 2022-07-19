@@ -16,7 +16,7 @@ export class SearchController {
         description: 'List of the selected entities',
         type: SearchResult,
     })
-    @Get('/')
+    @Post('/')
     public async getResults(req: Request, res: Response) {
         const { search } = req.body;
 
@@ -32,7 +32,7 @@ export class SearchController {
         description: 'List of the categories',
         type: Array<Category>,
     })
-    @Get('/category')
+    @Post('/category')
     public async getCategories(req: Request, res: Response) {
         const { search } = req.body;
         const categories = searchService.getCategories(search.text);
@@ -44,7 +44,7 @@ export class SearchController {
         description: 'List of the courses',
         type: Array<Course>,
     })
-    @Get('/course')
+    @Post('/course')
     public async getCourses(req: Request, res: Response) {
         const { search } = req.body;
         const courses = searchService.getCourses(search.text);
@@ -56,7 +56,7 @@ export class SearchController {
         description: 'List of the chapters',
         type: Array<Chapter>,
     })
-    @Get('/chapter')
+    @Post('/chapter')
     public async getChapters(req: Request, res: Response) {
         const { search } = req.body;
         const chapters = searchService.getChapters(search.text);

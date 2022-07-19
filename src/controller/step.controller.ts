@@ -71,7 +71,7 @@ export class StepController {
         if (!step) {
             throw new NotFoundException('Step not found');
         }
-        res.status(200).json({ ...step });
+        res.status(200).json({ ...step, lab: step.lab.id });
     }
 
     

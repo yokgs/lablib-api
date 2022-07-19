@@ -16,7 +16,9 @@ export class LabService {
         return this.labRepository.save({ ...lab, id: labId });
     }
     public async getAll(): Promise<Lab[]> {
-        return this.labRepository.find();
+        return this.labRepository.find({
+            relations:['chapter', 'steps']
+        });
     }
 
     public async getById(id: number): Promise<Lab | null> {

@@ -16,7 +16,9 @@ export class StepService {
         return this.stepRepository.save({ ...step, id: stepId });
     }
     public async getAll(): Promise<Step[]> {
-        return this.stepRepository.find();
+        return this.stepRepository.find({
+            relations:['lab']
+        });
     }
 
     public async getById(id: number): Promise<Step | null> {

@@ -17,6 +17,7 @@ import { Not } from 'typeorm';
 import htmlService from '../service/html.service';
 import { sign } from 'crypto';
 import { config } from '../config/env.config';
+import { IPasswordPayload } from '../types/passwordpayload.interface';
 
 
 @ApiTags('User')
@@ -50,13 +51,15 @@ export class UserController {
 			throw new BadRequestException('Email already exists');
 		}
 
-		// sign user interface and send it to the email
-		let data = '<a href="https://labib-api.heroku.com/api/v1/user/verify/' + jwtService.signUser({
+		let link = config.origin + 'api/v1/user/verify/' + jwtService.signUser({
 			email,
 			password: await passwordService.hashPassword(password),
 			firstname, lastname
-		}) + '">verify your account</a>';
-		emailService.sendMail(data, email, 'verify email');
+		});
+		emailService.sendMail(
+			htmlService.createLink(link, 'Verify your account'),
+			email,
+			'Verify your LabLib registration');
 		res.status(200).json({ message: "email sent" });
 	}
 
@@ -86,12 +89,51 @@ export class UserController {
 		if (!user) {
 			throw new NotFoundException('User not found');
 		}
-		let link = config.origin+'api/v1/user/resetpassword/'+jwtService.signUser({ ...user, password: undefined} as IUser);
+		let link = config.origin + 'api/v1/user/resetpassword/' + jwtService.signPassword({ userId: user.id, key: user.password } as IPasswordPayload);
 		emailService.sendMail(
 			htmlService.createLink(link, 'click to reset your password'),
 			user.email,
-			'Reset Password');
-		return res.status(200).json({ message:'email sent' });
+			'Reset Your LabLib Password');
+		return res.status(200).json({ message: 'email sent' });
+	}
+
+	@Get('/resetpassword/:token')
+	public async resetPasswordPage(req: Request, res: Response) {
+		let { token } = req.params, body: IPasswordPayload;
+		try {
+			body = jwtService.verifyPassword(token);
+
+		} catch (err) {
+			throw new BadRequestException('Invalid token');
+		}
+
+		let { userId } = body;
+		const user = await userService.getById(userId);
+		if (!user) {
+			throw new NotFoundException('User not found');
+		}
+		res.status(200).sendFile('../../static/resetPassword.html');
+	}
+
+	@Post('/resetpassword/:token')
+	public async getPassword(req: Request, res: Response) {
+		let { password } = req.body;
+		let { token } = req.params, body: IPasswordPayload;
+		try {
+			body = jwtService.verifyPassword(token);
+
+		} catch (err) {
+			throw new BadRequestException('Invalid token');
+		}
+
+		let { userId } = body;
+		const user = await userService.getById(userId);
+		if (!user) {
+			throw new NotFoundException('User not found');
+		}
+		user.password = await passwordService.hashPassword(password);
+		await userService.update(userId, user);
+		res.status(200).json({ message: "password updated successfully" });
 	}
 
 	@Get('/:userId')

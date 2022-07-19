@@ -11,10 +11,10 @@ class SearchRouter {
     }
 
     private routes() {
-        this.router.get('/', searchController.getResults);
-        this.router.get('/category', searchController.getCategories);
-        this.router.get('/course', searchController.getCourses);
-        this.router.get('/chapter', searchController.getChapters);
+        this.router.post('/', searchController.getResults);
+        this.router.post('/category', searchController.getCategories);
+        this.router.post('/course', searchController.getCourses);
+        this.router.post('/chapter', searchController.getChapters);
     }
 
 }

@@ -16,7 +16,9 @@ export class ChapterService {
         return this.chapterRepository.save({ ...chapter, id: chapterId });
     }
     public async getAll(): Promise<Chapter[]> {
-        return this.chapterRepository.find();
+        return this.chapterRepository.find({
+        relations:['course', 'labs']
+        });
     }
 
     public async getById(id: number): Promise<Chapter | null> {

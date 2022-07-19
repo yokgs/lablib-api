@@ -17,7 +17,7 @@ export class ChapterController {
     @ApiOperation({ description: 'Get a list of chapters' })
     @Get('/')
     public async getChapters(req: Request, res: Response) {
-        res.status(200).json((await chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name })));
+        res.status(200).json((await chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name, labs: chapter.labs.length })));
     }
 
     @ApiOperation({ description: 'Create a new chapter' })

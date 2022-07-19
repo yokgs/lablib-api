@@ -18,7 +18,7 @@ export class CourseController {
     @ApiOperation({ description: 'Get a list of courses' })
     @Get('/')
     public async getCourses(req: Request, res: Response) {
-        res.status(200).json((await courseService.getAll()).map((course) => ({ ...course })));
+        res.status(200).json((await courseService.getAll()).map((course) => ({ ...course, category: course.category.name, chapters: course.chapters.length })));
     }
 
     @ApiOperation({ description: 'Create a new course' })

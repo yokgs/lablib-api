@@ -18,7 +18,7 @@ export class LabController {
     @ApiOperation({ description: 'Get a list of labs' })
     @Get('/')
     public async getLabs(req: Request, res: Response) {
-        res.status(200).json((await labService.getAll()).map((lab) => ({ ...lab, category: lab.chapter.name })));
+        res.status(200).json((await labService.getAll()).map((lab) => ({ ...lab, chapter: lab.chapter.name, steps: lab.steps.length })));
     }
 
     @ApiOperation({ description: 'Create a new lab' })

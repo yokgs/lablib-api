@@ -24,7 +24,7 @@ export class CategoryController {
     })
     @Get('/')
     public async getCategories(req: Request, res: Response) {
-        res.status(200).json((await categoryService.getAll()).map((category) => ({ ...category })));
+        res.status(200).json((await categoryService.getAll()).map((category) => ({ ...category, courses: category.courses.length })));
     }
 
     @ApiOperation({ description: 'Create a new category' })
