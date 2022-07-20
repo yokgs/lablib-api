@@ -15,7 +15,6 @@ class AdminRouter {
 	private routes() {
 		this.router.get(
 			'/',
-			ensureAuthenticated,
 			userController.allUsers
 		);
 		this.router.get(
