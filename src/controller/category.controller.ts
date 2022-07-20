@@ -48,7 +48,7 @@ export class CategoryController {
     @Post('/')
     public async createCategory(req: Request, res: Response) {
         const { name, description } = req.body;
-console.log(name, description)
+        console.log(name, description)
         if (!name) {
             throw new BadRequestException('Missing required fields');
         }
@@ -56,7 +56,7 @@ console.log(name, description)
         if (await categoryService.getByName(name)) {
             throw new BadRequestException('Category under this name already exists');
         }
-        let $image = {id: null};
+        let $image = { id: null };
         if (req.files && req.files.image) {
             let image = req.files.image;
             const newImage = new ImageEntity();

@@ -20,9 +20,9 @@ export class SearchController {
     public async getResults(req: Request, res: Response) {
         const { search } = req.body;
 
-        const categories = searchService.getCategories(search.text);
-        const courses = searchService.getCourses(search.text);
-        const chapters = searchService.getChapters(search.text);
+        const categories = (await searchService.getCategories(search.text)).map((category) => ({ ...category, courses: category.courses.length }));
+        const courses = (await searchService.getCourses(search.text)).map((course) => ({ ...course, chapters: course.chapters.length }));
+        const chapters = (await searchService.getChapters(search.text)).map((chapter) => ({ ...chapter, labs: chapter.labs.length }));
 
         res.status(200).json({ categories, courses, chapters, input: search.text });
     }
@@ -35,9 +35,9 @@ export class SearchController {
     public async getResultsQ(req: Request, res: Response) {
         let { q } = req.query;
         let search = q.toString();
-        const categories = await searchService.getCategories(search);
-        const courses = await searchService.getCourses(search);
-        const chapters = await searchService.getChapters(search);
+        const categories = (await searchService.getCategories(search)).map((category) => ({ ...category, courses: category.courses.length }));
+        const courses = (await searchService.getCourses(search)).map((course) => ({ ...course, chapters: course.chapters.length }));
+        const chapters = (await searchService.getChapters(search)).map((chapter) => ({ ...chapter, labs: chapter.labs.length }));
         res.status(200).json({ categories, courses, chapters, input: search });
     }
 
@@ -50,8 +50,8 @@ export class SearchController {
     @Post('/category')
     public async getCategories(req: Request, res: Response) {
         const { search } = req.body;
-        const categories =await searchService.getCategories(search.text);
-        res.status(200).json(categories);
+        const categories = await searchService.getCategories(search.text);
+        res.status(200).json(categories.map((category) => ({ ...category, courses: category.courses.length })));
     }
 
     @ApiOperation({ description: 'Get list of courses that match the given search query' })
@@ -63,7 +63,7 @@ export class SearchController {
     public async getCourses(req: Request, res: Response) {
         const { search } = req.body;
         const courses = await searchService.getCourses(search.text);
-        res.status(200).json(courses);
+        res.status(200).json(courses.map((course) => ({ ...course, chapters: course.chapters.length })));
     }
 
     @ApiOperation({ description: 'Get list of chapters that match the given search query' })
@@ -75,7 +75,7 @@ export class SearchController {
     public async getChapters(req: Request, res: Response) {
         const { search } = req.body;
         const chapters = await searchService.getChapters(search.text);
-        res.status(200).json(chapters);
+        res.status(200).json(chapters.map((chapter) => ({ ...chapter, labs: chapter.labs.length })));
     }
 
 
@@ -88,7 +88,7 @@ export class SearchController {
     public async getCategoriesQ(req: Request, res: Response) {
         const { q } = req.query;
         const categories = await searchService.getCategories(q.toString());
-        res.status(200).json(categories);
+        res.status(200).json(categories.map((category) => ({ ...category, courses: category.courses.length })));
     }
 
     @ApiOperation({ description: 'Get list of courses that match the given search query' })
@@ -100,7 +100,7 @@ export class SearchController {
     public async getCoursesQ(req: Request, res: Response) {
         const { q } = req.query;
         const courses = await searchService.getCourses(q.toString());
-        res.status(200).json(courses);
+        res.status(200).json(courses.map((course) => ({ ...course, chapters: course.chapters.length })));
     }
 
     @ApiOperation({ description: 'Get list of chapters that match the given search query' })
@@ -112,7 +112,7 @@ export class SearchController {
     public async getChaptersQ(req: Request, res: Response) {
         const { q } = req.query;
         const chapters = await searchService.getChapters(q.toString());
-        res.status(200).json(chapters);
+        res.status(200).json(chapters.map((chapter) => ({ ...chapter, labs: chapter.labs.length })));
     }
 }
 
