@@ -116,14 +116,15 @@ console.log(name, description)
     @Put('/:categoryId')
     public async updateCategory(req: Request, res: Response) {
         const { name, description } = req.body;
-        console.log('PPPPPPPPPut', req.files)
         const { categoryId } = req.params;
         const category = await categoryService.getById(Number(categoryId));
 
         if (!category) {
             throw new NotFoundException('Category not found');
         }
-
+        if (await categoryService.getByName(name)) {
+            throw new BadRequestException('Category under this name already exists');
+        }
         name && (category.name = name);
         description && (category.description = description);
         if (req.files && req.files.image) {

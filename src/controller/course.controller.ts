@@ -100,6 +100,9 @@ export class CourseController {
             course.image = $image.id;
         }
 
+        if (await courseService.getByName(name)) {
+            throw new BadRequestException('Course under this name already exists');
+        }
         if (typeof category !== 'undefined') {
             let $category = await categoryService.getByName(category);
             if (!$category) {

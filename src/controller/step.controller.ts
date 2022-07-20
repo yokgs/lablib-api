@@ -34,10 +34,6 @@ export class StepController {
             throw new BadRequestException('Missing required fields');
         }
 
-        if (await stepService.getByName(name)) {
-            throw new BadRequestException('Step under this name already exists');
-        }
-
         let $lab = await labService.getById(Number(lab));
         if (!$lab) {
             throw new BadRequestException('Cannot find lab ' + lab);

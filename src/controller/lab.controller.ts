@@ -34,9 +34,6 @@ export class LabController {
             throw new BadRequestException('Missing required fields');
         }
 
-        if (await labService.getByName(name)) {
-            throw new BadRequestException('Lab under this name already exists');
-        }
         let $chapter = await chapterService.getById(Number(chapter));
         if (!$chapter) {
             throw new NotFoundException('Cannot find chapter ' + chapter);
