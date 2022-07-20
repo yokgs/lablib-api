@@ -43,7 +43,7 @@ export class ChapterController {
         chapter.course = $course;
         const newChapter = await chapterService.create(chapter);
 
-        res.status(200).json({ ...newChapter, course: course });
+        res.status(200).json({ ...newChapter, course });
     }
 
     @ApiOperation({ description: 'Get details of a chapter' })

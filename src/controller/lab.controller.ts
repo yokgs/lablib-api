@@ -48,7 +48,7 @@ export class LabController {
         lab.chapter = $chapter;
         const newLab = await labService.create(lab);
 
-        res.status(201).json({ ...newLab, category: lab.chapter.name });
+        res.status(201).json({ ...newLab, chapter: lab.chapter.name });
     }
 
     @ApiOperation({ description: 'Get details of a lab' })
