@@ -81,12 +81,14 @@ export class ChapterController {
         if (!chapter) {
             throw new NotFoundException('Chapter not found');
         }
-        let $course = await courseService.getByName(course);
-        if (!$course) {
-            throw new NotFoundException('Cannot find course ' + course);
+        if (typeof course !== 'undefined') {
+            let $course = await courseService.getByName(course);
+            if (!$course) {
+                throw new NotFoundException('Cannot find course ' + course);
+            }
+            chapter.course = $course;
         }
-        chapter.name = name || chapter.name;
-        chapter.course = $course || chapter.course;
+        name && (chapter.name = name);
         const updatedChapter = await chapterService.update(Number(chapterId), chapter);
 
         return res.status(200).json({ ...updatedChapter });

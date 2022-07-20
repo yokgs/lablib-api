@@ -38,7 +38,7 @@ export class StepController {
             throw new BadRequestException('Step under this name already exists');
         }
 
-        let $lab = await labService.getByName(lab);
+        let $lab = await labService.getById(Number(lab));
         if (!$lab) {
             throw new BadRequestException('Cannot find lab ' + lab);
         }
@@ -48,7 +48,7 @@ export class StepController {
         step.rang = rang;
         step.demo = demo;
         step.content = content;
-        step.lab = await labService.getByName(lab);
+        step.lab = $lab;
         const newStep = await stepService.create(step);
 
         res.status(200).json({ ...newStep, lab: step.lab.name });
@@ -74,7 +74,7 @@ export class StepController {
         res.status(200).json({ ...step, lab: step.lab.id });
     }
 
-    
+
     @ApiOperation({ description: 'Modify a step' })
     @ApiParam({ name: 'stepId', type: number })
     @ApiResponse({
@@ -83,21 +83,27 @@ export class StepController {
     })
     @Put('/:stepId')
     public async updateStep(req: Request, res: Response) {
-        const { name, lab, description, image } = req.body;
+        const { name, lab, rang, demo, content } = req.body;
 
         const { stepId } = req.params;
-        
+
         const step = await stepService.getById(Number(stepId));
 
         if (!step) {
             throw new NotFoundException('Step not found');
         }
 
-        if (!name || !lab || !description) {
-            throw new BadRequestException('Missing required fields');
+        name && (step.name = name);
+        content && (step.content = content);
+        demo && (step.demo = demo);
+        rang && (step.rang = Number(rang));
+        if (typeof lab != 'undefined') {
+            let $lab = await labService.getById(Number(lab));
+            if (!$lab) {
+                throw new NotFoundException('Cannot find lab ' + lab);
+            }
+            step.lab = $lab;
         }
-
-        step.name = name;
 
         const updatedStep = await stepService.update(Number(stepId), step);
 

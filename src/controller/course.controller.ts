@@ -83,8 +83,7 @@ export class CourseController {
     })
     @Put('/:courseId')
     public async updateCourse(req: Request, res: Response) {
-        const { name, category, description, image } = req.body;
-
+        const { name, category, description } = req.body;
         const { courseId } = req.params;
         const course = await courseService.getById(Number(courseId));
 
@@ -94,15 +93,22 @@ export class CourseController {
 
         if (req.files && req.files.image) {
             let image = req.files.image;
-            await imageService.delete(category.image);
+            await imageService.delete(course.image);
             const newImage = new ImageEntity();
             newImage.content = image.data;
             let $image = await imageService.create(newImage);
             course.image = $image.id;
         }
 
-        course.description = description || course.description;
-        course.name = name || course.name;
+        if (typeof category !== 'undefined') {
+            let $category = await categoryService.getByName(category);
+            if (!$category) {
+                throw new NotFoundException('Cannot find category ' + category);
+            }
+            course.category = $category;
+        }
+        description && (course.description = description);
+        name && (course.name = name);
 
         const updatedCourse = await courseService.update(Number(courseId), course);
 
