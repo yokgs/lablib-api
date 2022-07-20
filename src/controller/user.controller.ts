@@ -9,15 +9,12 @@ import { Role } from '../types/role.enum';
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { NotFoundException } from '../error/NotFoundException.error';
-import { info } from 'console';
-import { token } from 'morgan';
 import emailService from '../service/email.service';
 import { IUser } from '../types/user.interface';
-import { Not } from 'typeorm';
 import htmlService from '../service/html.service';
-import { sign } from 'crypto';
 import { config } from '../config/env.config';
 import { IPasswordPayload } from '../types/passwordpayload.interface';
+import path from 'path';
 
 
 @ApiTags('User')
@@ -30,7 +27,7 @@ export class UserController {
 	}
 
 	@Get('/')
-	@ApiOperation({ description: 'gwt the ist of all users' })
+	@ApiOperation({ description: 'get the ist of all users' })
 	public async allUsers(req: Request, res: Response) {
 		res.status(200).json((await userService.getAll()).map((user) => ({
 			...user,
@@ -59,7 +56,7 @@ export class UserController {
 			password: await passwordService.hashPassword(password),
 			firstname, lastname
 		});
-		emailService.sendMail(
+		await emailService.sendMail(
 			htmlService.createLink(link, 'Verify your account'),
 			email,
 			'Verify your LabLib registration');
@@ -118,7 +115,7 @@ export class UserController {
 		if (!user) {
 			throw new NotFoundException('User not found');
 		}
-		res.status(200).sendFile('../../static/resetPassword.html');
+		res.status(200).sendFile(path.join(__dirname, '../../static/resetPassword.html'));
 	}
 
 	@Post('/resetpassword/:token')
@@ -153,9 +150,9 @@ export class UserController {
 	@Post('/login')
 	@ApiOperation({ description: 'authentication as a specific user' })
 	public async login(req: Request, res: Response) {
-		const { login, password } = req.body;
+		const { email, password } = req.body;
 
-		const user = await userService.getByEmail(login);
+		const user = await userService.getByEmail(email);
 
 		if (!user) {
 			throw new BadRequestException('Invalid credentials');
