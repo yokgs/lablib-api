@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToOne, ManyToMany, JoinTable } from "typeorm";
 import { Role } from '../types/role.enum';
+import { Course } from "./course";
 import { Lab } from "./lab";
 @Entity()
 export class User extends BaseEntity {
@@ -27,11 +28,29 @@ export class User extends BaseEntity {
         nullable: true
     })
     active: Date
+
+    @Column({
+        default: false
+    })
+    MFA: boolean
+
     @OneToMany(
         () => Lab,
         lab => lab.user
     )
     labs: Lab[]
+
+    @ManyToMany(
+        () => Course,
+        course => course.followers
+    )
+    @JoinTable({
+        name: 'favorites',
+        inverseJoinColumn: { name: 'course', referencedColumnName: 'id' },
+        joinColumn: { name: 'user', referencedColumnName: 'id' }
+    })
+    favorites: Course[]
+
     @CreateDateColumn()
     createdAt: Date;
     @UpdateDateColumn()

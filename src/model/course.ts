@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToMany } from "typeorm";
 import { Category } from "./category";
 import { Chapter } from "./chapter";
+import { User } from "./user";
 @Entity()
 export class Course extends BaseEntity {
     @PrimaryGeneratedColumn()
@@ -32,6 +33,13 @@ export class Course extends BaseEntity {
         chapter => chapter.course
     )
     chapters: Chapter[]
+
+    @ManyToMany(
+        () => User,
+        user => user.favorites
+    )
+    followers: User[]
+    
     @CreateDateColumn()
     createdAt: Date;
     @UpdateDateColumn()

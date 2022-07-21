@@ -32,7 +32,8 @@ export class EmailService {
 
         this.transporter.sendMail(options, function (error, info) {
             if (error) {
-                console.log('errrrrrror', error);
+                console.log(error);
+
             } else {
                 console.log('Email sent: ' + info.response);
             }

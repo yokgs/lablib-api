@@ -15,6 +15,8 @@ import htmlService from '../service/html.service';
 import { config } from '../config/env.config';
 import { IPasswordPayload } from '../types/passwordpayload.interface';
 import path from 'path';
+import { ImageEntity } from '../model/image';
+import imageService from '../service/image.service';
 
 
 @ApiTags('User')
@@ -32,14 +34,14 @@ export class UserController {
 		res.status(200).json((await userService.getAll()).map((user) => ({
 			...user,
 			password: undefined,
-			active: req.currentUser.role == Role.ADMIN ? user.active : undefined,
-			createdAt: req.currentUser.role == Role.ADMIN ? user.createdAt : undefined,
+			//active: req.currentUser.role == Role.ADMIN ? user.active : undefined,
+			//createdAt: req.currentUser.role == Role.ADMIN ? user.createdAt : undefined,
 			updatedAt: undefined
 		})));
 	}
 
 	@Post('/')
-	@ApiOperation({ description: 'request an email verification link to create new user account',})
+	@ApiOperation({ description: 'request an email verification link to create new user account', })
 	public async create(req: Request, res: Response) {
 		const { email, password, firstname, lastname } = req.body;
 
@@ -69,15 +71,26 @@ export class UserController {
 		let { token } = req.params, body: IUser;
 		try {
 			body = jwtService.verifyAccount(token);
-
 		} catch (err) {
 			throw new BadRequestException('Invalid token');
+		}
+		if (await userService.getByEmail(body.email)) {
+			throw new BadRequestException('Email is already verified');
 		}
 		const user = new User();
 		user.email = body.email;
 		user.password = body.password;
 		user.firstname = body.firstname;
 		user.lastname = body.lastname;
+
+		if (req.files && req.files.image) {
+			let image = req.files.image;
+			const newImage = new ImageEntity();
+			newImage.content = image.data;
+			let $image = await imageService.create(newImage);
+			user.image = $image.id;
+		}
+
 		const newUser = await userService.create(user);
 		res.status(201).json({ ...newUser, password: undefined });
 	}
@@ -100,7 +113,7 @@ export class UserController {
 	}
 
 	@Get('/resetpassword/:token')
-		@ApiOperation({ description: '(expirimental feature) get access to reset your password'})
+	@ApiOperation({ description: '(expirimental feature) get access to reset your password' })
 	public async resetPasswordPage(req: Request, res: Response) {
 		let { token } = req.params, body: IPasswordPayload;
 		try {
@@ -115,7 +128,7 @@ export class UserController {
 		if (!user) {
 			throw new NotFoundException('User not found');
 		}
-		res.status(200).sendFile(path.join(__dirname, '../../static/resetPassword.html'));
+		res.status(200).sendFile(path.join(__dirname, '../../static/passwordreset.html'));
 	}
 
 	@Post('/resetpassword/:token')
@@ -230,20 +243,35 @@ export class UserController {
 	public async getRoleUser(req: Request, res: Response) {
 		res.status(200).json((await userService.getAll()).map((user) => ({ ...user, password: undefined })).filter(x => (x.role === Role.USER)));
 	}
-	
+
 	@Put('/me')
 	@ApiOperation({ description: 'update information about the current user' })
 	public async updateCurrentUser(req: Request, res: Response) {
 		const { email, firstname, lastname, password, currentPassword } = req.body;
 		const user = await userService.getById(req.currentUser.userId);
-		user.firstname = firstname || user.firstname;
-		user.lastname = lastname || user.lastname;
+		let isPasswordValid = await passwordService.comparePassword(currentPassword, user.password);
+		if (!isPasswordValid) {
+			throw new BadRequestException('Invalid password');
+		}
+		firstname && (user.firstname = firstname);
+		lastname && (user.lastname = lastname);
 		if (email) {
 			user.email = email;
+			
 			//sign new email address with user id and send it to the email
 		}
 		if (password)
 			user.password = await passwordService.hashPassword(password);
+		
+		if (req.files && req.files.image) {
+			let image = req.files.image;
+			await imageService.delete(user.image);
+			const newImage = new ImageEntity();
+			newImage.content = image.data;
+			let $image = await imageService.create(newImage);
+			user.image = $image.id;
+		}
+
 		const updatedUser = await userService.update(req.currentUser.userId, user);
 		return res.status(200).json({ ...updatedUser, password: undefined });
 	}

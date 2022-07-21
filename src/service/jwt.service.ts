@@ -4,6 +4,7 @@ import { config } from '../config/env.config';
 import { IPayload } from '../types/jwtpayload.interface';
 import { IPasswordPayload } from '../types/passwordpayload.interface';
 import { IUser } from '../types/user.interface';
+import { IInvitation } from '../types/invitation.interface';
 
 class JwtService {
 	constructor(private readonly options?: SignOptions) { }
@@ -19,9 +20,9 @@ class JwtService {
 			expiresIn: '15min'
 		});
 	}
-	public signInvitation(user: IUser): string {
-		return jwt.sign(user, config.JWT_SECRET!, {
-			expiresIn: '30d',
+	public signInvitation(invitation: IInvitation): string {
+		return jwt.sign(invitation, config.JWT_SECRET!, {
+			expiresIn: '30d'
 		});
 	}
 
@@ -42,7 +43,10 @@ class JwtService {
 	}
 
 	public getOTP(token: string): string {
-		let data = token + '.' + Math.floor(new Date().getTime() / 1000 / 60 / 3);
+		let duration = 5 * 60, offset = 0;
+		let remain = (new Date().getTime() % (1000 / 60 / 5)) / 1000;
+		if (remain < duration * .5) offset = remain * 1000;
+		let data = token + '.' + Math.floor((new Date().getTime() + offset) / 1000 / 60 / 5);
 		let hash = crypto.createHash('sha256').update(data).digest('hex').slice(0,5);
 		return parseInt(hash, 16).toString().slice(0, 6);
 	}
