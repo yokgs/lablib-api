@@ -7,6 +7,9 @@ export class Chapter extends BaseEntity{
     id: number
     @Column()
     name: string
+    @Column({
+        default: 1
+    }) order: number
     @ManyToOne(
         () => Course,
         course=>course.chapters

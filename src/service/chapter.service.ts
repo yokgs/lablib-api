@@ -22,7 +22,7 @@ export class ChapterService {
     }
 
     public async getById(id: number): Promise<Chapter | null> {
-        return this.chapterRepository.findOne({ where: { id } });
+        return this.chapterRepository.findOne({ where: { id }, relations:['course', 'labs'] });
     }
 
     public async create(chapter: Chapter): Promise<Chapter> {

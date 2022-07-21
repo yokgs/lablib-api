@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { Chapter } from '../model/chapter';
 import chapterService from '../service/chapter.service';
-import courseService, { CourseService } from '../service/course.service';
+import courseService from '../service/course.service';
 import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PostChapterDTO } from '../dto/post.chapter.dto';
@@ -27,7 +27,7 @@ export class ChapterController {
     })
     @Post('/')
     public async createChapter(req: Request, res: Response) {
-        const { name, course } = req.body;
+        const { name, course, order } = req.body;
 
         if (!course || !name) {
             throw new BadRequestException('Missing required fields');
@@ -37,10 +37,13 @@ export class ChapterController {
         if (!$course) {
             throw new NotFoundException('Cannot find course ' + course);
         }
+
         const chapter = new Chapter();
 
         chapter.name = name;
         chapter.course = $course;
+
+        chapter.order = order || (Math.max(...$course.chapters.map(chapter => chapter.order)) + 1);
         const newChapter = await chapterService.create(chapter);
 
         res.status(200).json({ ...newChapter, course });
@@ -59,7 +62,7 @@ export class ChapterController {
         if (!chapter) {
             throw new NotFoundException('Chapter not found');
         }
-        res.status(200).json({ ...chapter });
+        res.status(200).json({ ...chapter, course: chapter.course.name, labs: chapter.labs.length });
     }
 
     @ApiOperation({ description: 'Modify a chapter' })
