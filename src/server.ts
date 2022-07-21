@@ -33,7 +33,7 @@ export class App {
 
     constructor() {
         this._app = express();
-        this._app.enable('trust proxy');
+        this._app.set('trust proxy', 1);
         this._app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
         this.mapMiddleware();
         this.mapRoutes();
@@ -95,7 +95,8 @@ export class App {
                 httpOnly: true,
                 secure: config.NODE_ENV === 'production',
                 sameSite: "none",
-                secureProxy: true
+                secureProxy: true,
+                secret: config.SESSION_SECRET
             })
         );
         this._app.use(
