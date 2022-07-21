@@ -20,7 +20,7 @@ export class CourseService {
     }
 
     public async getById(id: number): Promise<Course | null> {
-        return this.courseRepository.findOne({ where: { id } });
+        return this.courseRepository.findOne({ where: { id }, relations: ['chapters', 'category'] });
     }
 
     public async create(course: Course): Promise<Course> {
@@ -30,7 +30,7 @@ export class CourseService {
         return this.courseRepository.delete({ id });
     }
     public async getByName(name: string): Promise<Course | null> {
-        return this.courseRepository.findOneBy({ name });
+        return this.courseRepository.findOne({ where: { name }, relations: ['chapters'] });
     }
     public async getByCategory(categoryId: number): Promise<Course[]> {
         return this.courseRepository.createQueryBuilder()

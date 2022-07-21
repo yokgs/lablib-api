@@ -10,4 +10,9 @@ export class PostChapterDTO {
         required: true
     })
     course: string;
+
+    @ApiProperty({
+        required: false
+    })
+    ordre: number;
 }

@@ -93,7 +93,7 @@ export class CategoryController {
         if (!category) {
             throw new NotFoundException('Category not found');
         }
-        res.status(200).json({ ...category });
+        res.status(200).json({ ...category, courses: category.courses.length });
     }
 
 

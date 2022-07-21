@@ -61,7 +61,7 @@ export class StepController {
     })
     @Get('/:stepId')
     public async stepById(req: Request, res: Response) {
-        const stepId = Number(req.params.id);
+        const stepId = Number(req.params.stepId);
         const step = await stepService.getById(stepId);
 
         if (!step) {

@@ -68,8 +68,15 @@ export class CourseController {
     @Get('/:courseId')
     public async courseById(req: Request, res: Response) {
         const courseId = Number(req.params.courseId);
-
-        res.status(200).json({ ...await courseService.getById(courseId) });
+        let course = await courseService.getById(courseId);
+        if (!course) {
+            throw new NotFoundException(`Course not found`);
+        }
+        res.status(200).json({
+            ...course,
+            category: course.category.name,
+            chapters: course.chapters.length
+        });
     }
 
     @ApiOperation({ description: 'Modify a course' })

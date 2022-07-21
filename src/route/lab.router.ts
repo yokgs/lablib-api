@@ -17,6 +17,7 @@ class LabRouter {
         this.router.put('/:labId', labController.updateLab);
         this.router.delete('/:labId', labController.deleteLab);
         this.router.get('/:labId/list',labController.getStepsByLab);
+        this.router.get('/:labId/list/id',labController.getIdStepsByLab);
     }
 
 }

@@ -61,7 +61,7 @@ export class LabController {
         if (!lab) {
             throw new NotFoundException('Lab not found');
         }
-        res.status(200).json({ ...lab });
+        res.status(200).json({ ...lab, chapter: lab.chapter.name, steps: lab.steps.length });
     }
 
     @ApiOperation({ description: 'Modify a lab' })
@@ -125,6 +125,23 @@ export class LabController {
 
         let steps = await stepService.getByLab(Number(labId));
         res.status(200).json(steps);
+    }
+    @ApiOperation({ description: 'Get a list of steps\' id for a given lab' })
+    @ApiResponse({
+        status: 404,
+        description: 'Lab not found',
+    })
+    @Get('/:labId/list/id')
+    public async getIdStepsByLab(req: Request, res: Response) {
+        const { labId } = req.params;
+        const lab = await labService.getById(Number(labId));
+
+        if (!lab)
+            throw new NotFoundException('Lab not found');
+
+
+        let steps = await stepService.getByLab(Number(labId));
+        res.status(200).json(steps.map(step => step.id));
     }
 }
 

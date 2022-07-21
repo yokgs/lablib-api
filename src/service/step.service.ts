@@ -22,7 +22,7 @@ export class StepService {
     }
 
     public async getById(id: number): Promise<Step | null> {
-        return this.stepRepository.findOne({ where: { id } });
+        return this.stepRepository.findOne({ where: { id }, relations: ['lab'] });
     }
 
     public async create(step: Step): Promise<Step> {
@@ -32,7 +32,7 @@ export class StepService {
         return this.stepRepository.delete({ id });
     }
     public async getByName(name: string): Promise<Step | null> {
-        return this.stepRepository.findOneBy({ name });
+        return this.stepRepository.findOne({ where: { name }, relations: ['lab'] });
     }
     public async getByLab(labId: number): Promise<Step[]> {
         return this.stepRepository.createQueryBuilder()

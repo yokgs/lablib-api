@@ -22,7 +22,7 @@ export class LabService {
     }
 
     public async getById(id: number): Promise<Lab | null> {
-        return this.labRepository.findOne({ where: { id } });
+        return this.labRepository.findOne({ where: { id }, relations: ['chapter', 'steps'] });
     }
 
     public async create(lab: Lab): Promise<Lab> {
@@ -32,7 +32,7 @@ export class LabService {
         return this.labRepository.delete({ id });
     }
     public async getByName(name: string): Promise<Lab | null> {
-        return this.labRepository.findOneBy({ name });
+        return this.labRepository.findOne({ where: { name }, relations: ['chapter', 'steps'] });
     }
     public async getByChapter(chapterId: number): Promise<Lab[]> {
         return this.labRepository.createQueryBuilder()
