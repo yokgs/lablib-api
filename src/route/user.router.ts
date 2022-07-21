@@ -14,14 +14,25 @@ class AdminRouter {
 	}
 
 	private routes() {
+
 		this.router.get(
 			'/',
 			userController.allUsers
 		);
+
 		this.router.get(
 			'/resetpassword',
 			userController.resetPassword
 		);
+		this.router.get(
+			'/resetpassword/:token',
+			userController.resetPasswordPage
+		);
+		this.router.post(
+			'/resetpassword/:token',
+			userController.getPassword
+		);
+
 		this.router.get(
 			'/me',
 			ensureAuthenticated,
@@ -39,14 +50,17 @@ class AdminRouter {
 			ensureAuthenticated,
 			userController.details
 		);
+
 		this.router.post(
 			'/',
 			userController.create
 		);
+
 		this.router.get(
 			'/verify/:token',
 			userController.verifyEmail
 		);
+		
 		this.router.post('/login', ensureNotLoggedIn, userController.login);
 		this.router.get('/logout', userController.logout);
 		
