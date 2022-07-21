@@ -33,6 +33,7 @@ export class App {
 
     constructor() {
         this._app = express();
+        this._app.enable('trust proxy');
         this._app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
         this.mapMiddleware();
         this.mapRoutes();
@@ -83,7 +84,6 @@ export class App {
         this._app.use(config.NODE_ENV !== "production" ? morgan('dev') : morgan('combined'));
         this._app.use(securityMiddleware);
         this._app.use(function (req, res, next) {
-            //res.header("Access-Control-Allow-Origin", "admin-lablib.herokuapp.com");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
           });
@@ -94,7 +94,8 @@ export class App {
                 signed: false,
                 httpOnly: true,
                 secure: config.NODE_ENV === 'production',
-                sameSite: "none"
+                sameSite: "none",
+                secureProxy: true
             })
         );
         this._app.use(

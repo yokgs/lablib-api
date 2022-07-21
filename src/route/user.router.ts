@@ -2,6 +2,7 @@ import { Router } from 'express';
 import userController from '../controller/user.controller';
 import { ensureAccessLevel } from '../middleware/ensureAccessLevel';
 import { ensureAuthenticated } from '../middleware/ensureAuthenticated.middleware';
+import { ensureNotLoggedIn } from '../middleware/ensureNotLoggedIn.middleware';
 import { Role } from '../types/role.enum';
 
 class AdminRouter {
@@ -46,7 +47,7 @@ class AdminRouter {
 			'/verify/:token',
 			userController.verifyEmail
 		);
-		this.router.post('/login', userController.login);
+		this.router.post('/login', ensureNotLoggedIn, userController.login);
 		this.router.get('/logout', userController.logout);
 		
 		this.router.get('/role/user',

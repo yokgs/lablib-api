@@ -5,5 +5,5 @@ export const ensureNotLoggedIn = (req: Request, res: Response, next: NextFunctio
     return next();
   }
 
-  return res.redirect("/");
+  return res.redirect("/me");
 }
