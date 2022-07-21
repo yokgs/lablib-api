@@ -68,7 +68,8 @@ export class App {
     }
     private mapMiddleware() {
         this._app.use(cors({
-            origin: '*'
+            origin: '*',
+            credentials: true
         }))
         this._app.use(fileUpload({
             createParentPath: true
