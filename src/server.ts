@@ -94,7 +94,7 @@ export class App {
                 domain: config.COOKIE_DOMAIN,
                 signed: false,
                 httpOnly: true,
-                secure: config.NODE_ENV === 'production',
+                secure: false,//config.NODE_ENV === 'production',
                 sameSite: "none",
                 secureProxy: true,
                 secret: config.SESSION_SECRET
