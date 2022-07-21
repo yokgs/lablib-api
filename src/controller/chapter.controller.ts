@@ -32,8 +32,11 @@ export class ChapterController {
         if (!course || !name) {
             throw new BadRequestException('Missing required fields');
         }
-
+        if (!/^[\d]+$/.test(course)) {
+            throw new BadRequestException(course + ' is not a valid id for course');
+        }
         let $course = await courseService.getById(Number(course));
+
         if (!$course) {
             throw new NotFoundException('Cannot find course id:' + course);
         }
