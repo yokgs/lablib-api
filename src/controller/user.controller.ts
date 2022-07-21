@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import moment from 'moment';
+import moment, { duration } from 'moment';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { User } from '../model/user';
 import userService from '../service/user.service';
@@ -308,7 +308,7 @@ export class UserController {
 	public async getOTP(req: Request, res: Response) {
 		res.status(200).json({
 			resetIn: (180 - ((new Date()).getTime() % (3 * 60 * 1000)) / 1000) + 's',
-			otp: jwtService.getOTP(req.body.key || 'test')
+			otp: jwtService.getOTP(req.body.key || 'test', 180)
 		})
 	}
 }

@@ -42,14 +42,16 @@ class JwtService {
 		});
 	}
 
-	public getOTP(token: string): string {
-		let duration = 5 * 60, offset = 0;
+	public getOTP(token: string, duration: number): string {
+		let offset = 0;
 		let remain = (new Date().getTime() % (1000 / 60 / 5)) / 1000;
 		if (remain < duration * .5) offset = remain * 1000;
 		let data = token + '.' + Math.floor((new Date().getTime() + offset) / 1000 / 60 / 5);
-		let hash = crypto.createHash('sha256').update(data).digest('hex').slice(0,5);
-		return parseInt(hash, 16).toString().slice(0, 6);
+		let hash = crypto.createHash('sha256').update(data).digest('hex').slice(0, 5);
+		let iotp = parseInt(hash, 16).toString().slice(0, 6);
+		return '000000'.slice(0, 6 - iotp.length) + iotp;
 	}
+	
 }
 
 export default new JwtService({
