@@ -267,14 +267,14 @@ export class UserController {
 		lastname && (user.lastname = lastname);
 		if (email && user.email != email) {
 			let isUsed = await userService.getByEmail(email);
-			if(isUsed) throw new BadRequestException('Email already in use');
+			if (isUsed) throw new BadRequestException('Email already in use');
 			user.email = email;
 
 			//sign new email address with user id and send it to the email
 		}
 		if (password)
 			user.password = await passwordService.hashPassword(password);
-		
+
 		if (req.files && req.files.image) {
 			let image = req.files.image;
 			await imageService.delete(user.image);
@@ -306,9 +306,14 @@ export class UserController {
 	@Get('/test/otp')
 	@ApiOperation({ description: '(expirimensional feature) generate an OneTimePassword' })
 	public async getOTP(req: Request, res: Response) {
+		let d = 30;
 		res.status(200).json({
-			resetIn: (180 - ((new Date()).getTime() % (3 * 60 * 1000)) / 1000) + 's',
-			otp: jwtService.getOTP(req.body.key || 'test', 180)
+
+			resetIn: (d - ((new Date()).getTime() % (d * 1000)) / 1000) + 's',
+			otp_prev: jwtService.getOTP(req.body.key || 'test', 30, -15),
+			otp: jwtService.getOTP(req.body.key || 'test', 30, 0),
+			otp_next: jwtService.getOTP(req.body.key || 'test', 30, 15)
+
 		})
 	}
 }

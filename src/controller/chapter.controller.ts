@@ -33,9 +33,9 @@ export class ChapterController {
             throw new BadRequestException('Missing required fields');
         }
 
-        let $course = await courseService.getByName(course);
+        let $course = await courseService.getById(Number(course));
         if (!$course) {
-            throw new NotFoundException('Cannot find course ' + course);
+            throw new NotFoundException('Cannot find course id:' + course);
         }
 
         const chapter = new Chapter();
@@ -85,9 +85,9 @@ export class ChapterController {
             throw new NotFoundException('Chapter not found');
         }
         if (typeof course !== 'undefined') {
-            let $course = await courseService.getByName(course);
+            let $course = await courseService.getById(Number(course));
             if (!$course) {
-                throw new NotFoundException('Cannot find course ' + course);
+                throw new NotFoundException('Cannot find course id:' + course);
             }
             chapter.course = $course;
         }

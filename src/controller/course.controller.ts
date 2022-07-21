@@ -37,9 +37,9 @@ export class CourseController {
             throw new BadRequestException('Course under this name already exists');
         }
 
-        let $category = await categoryService.getByName(category);
+        let $category = await categoryService.getById(Number(category));
         if (!$category) {
-            throw new NotFoundException('Cannot find category ' + category);
+            throw new NotFoundException('Cannot find category id:' + category);
         }
         const course = new Course();
 
@@ -110,8 +110,9 @@ export class CourseController {
         if (await courseService.getByName(name)) {
             throw new BadRequestException('Course under this name already exists');
         }
+
         if (typeof category !== 'undefined') {
-            let $category = await categoryService.getByName(category);
+            let $category = await categoryService.getById(Number(category));
             if (!$category) {
                 throw new NotFoundException('Cannot find category ' + category);
             }

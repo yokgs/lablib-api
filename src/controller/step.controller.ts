@@ -70,7 +70,6 @@ export class StepController {
         res.status(200).json({ ...step, lab: step.lab.id });
     }
 
-
     @ApiOperation({ description: 'Modify a step' })
     @ApiParam({ name: 'stepId', type: number })
     @ApiResponse({

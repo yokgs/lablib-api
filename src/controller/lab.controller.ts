@@ -36,7 +36,7 @@ export class LabController {
 
         let $chapter = await chapterService.getById(Number(chapter));
         if (!$chapter) {
-            throw new NotFoundException('Cannot find chapter ' + chapter);
+            throw new NotFoundException('Cannot find chapter id:' + chapter);
         }
         const lab = new Lab();
 
