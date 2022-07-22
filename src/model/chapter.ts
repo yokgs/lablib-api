@@ -2,27 +2,36 @@ import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, JoinColu
 import { Course } from "./course";
 import { Lab } from "./lab";
 @Entity()
-export class Chapter extends BaseEntity{
+export class Chapter extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number
+
     @Column()
     name: string
+
     @Column({
         default: 1
     }) order: number
+
+    @Column({
+        nullable: true
+    }) image: string
+
     @ManyToOne(
         () => Course,
-        course=>course.chapters
+        course => course.chapters
     )
     @JoinColumn({
-        name:"course_id",
+        name: "course_id",
     })
     course: Course
+
     @OneToMany(
         () => Lab,
         lab => lab.chapter
     )
     labs: Lab[]
+
     @CreateDateColumn()
     createdAt: Date;
     @UpdateDateColumn()

@@ -18,7 +18,18 @@ export class CourseController {
     @ApiOperation({ description: 'Get a list of courses' })
     @Get('/')
     public async getCourses(req: Request, res: Response) {
-        res.status(200).json((await courseService.getAll()).map((course) => ({ ...course, category: course.category.name, chapters: course.chapters.length })));
+        let courses = await courseService.getAll();
+
+        let $courses = courses.map(course => {
+            return {
+                ...course,
+                category: course.category.name,
+                chapters: course.chapters.length,
+                level: courseService.getLevel(course)
+            }
+        })
+
+        res.status(200).json($courses);
     }
 
     @ApiOperation({ description: 'Create a new course' })
@@ -72,10 +83,12 @@ export class CourseController {
         if (!course) {
             throw new NotFoundException(`Course not found`);
         }
+        
         res.status(200).json({
             ...course,
             category: course.category.name,
-            chapters: course.chapters.length
+            chapters: course.chapters.length,
+            level: courseService.getLevel(course)
         });
     }
 
@@ -136,11 +149,12 @@ export class CourseController {
         const { courseId } = req.params;
 
         const course = await courseService.getById(Number(courseId));
-        await imageService.delete(course.image);
+
         if (!course) {
             throw new NotFoundException('Course not found');
         }
 
+        await imageService.delete(course.image);
         await courseService.delete(course.id);
 
         return res.status(200).json({});

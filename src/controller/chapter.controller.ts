@@ -3,12 +3,14 @@ import { BadRequestException } from '../error/BadRequestException.error';
 import { Chapter } from '../model/chapter';
 import chapterService from '../service/chapter.service';
 import courseService from '../service/course.service';
-import { Controller, Get, Post, Body, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Put } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { PostChapterDTO } from '../dto/post.chapter.dto';
 import { NotFoundException } from '../error/NotFoundException.error';
 import labService from '../service/lab.service';
 import { PutChapterDTO } from '../dto/put.chapter.dto';
+import imageService from '../service/image.service';
+import { ImageEntity } from '../model/image';
 
 @ApiTags('Chapter')
 @Controller('api/v1/chapter')
@@ -17,7 +19,7 @@ export class ChapterController {
     @ApiOperation({ description: 'Get a list of chapters' })
     @Get('/')
     public async getChapters(req: Request, res: Response) {
-        res.status(200).json((await chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name, labs: chapter.labs.length })));
+        res.status(200).json((await chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name, category: chapter.course.category.name, labs: chapter.labs.length })));
     }
 
     @ApiOperation({ description: 'Create a new chapter' })
@@ -32,9 +34,7 @@ export class ChapterController {
         if (!course || !name) {
             throw new BadRequestException('Missing required fields');
         }
-        if (!/^[\d]+$/.test(course)) {
-            throw new BadRequestException(course + ' is not a valid id for course');
-        }
+
         let $course = await courseService.getById(Number(course));
 
         if (!$course) {
@@ -43,10 +43,18 @@ export class ChapterController {
 
         const chapter = new Chapter();
 
+        if (req.files && req.files.image) {
+            let image = req.files.image;
+            const newImage = new ImageEntity();
+            newImage.content = image.data;
+            let $image = await imageService.create(newImage);
+            chapter.image = $image.id;
+        }
+
         chapter.name = name;
         chapter.course = $course;
-
-        chapter.order = order || (Math.max(...$course.chapters.map(chapter => chapter.order)) + 1);
+        const $order = $course.chapters.length ? (Math.max(...$course.chapters.map(chapter => chapter.order)) + 1) : 1
+        chapter.order = Number(order) || $order;
         const newChapter = await chapterService.create(chapter);
 
         res.status(200).json({ ...newChapter, course });
@@ -79,7 +87,7 @@ export class ChapterController {
     })
     @Put('/:chapterId')
     public async updateChapter(req: Request, res: Response) {
-        const { name, course } = req.body;
+        const { name, course, order } = req.body;
 
         const { chapterId } = req.params;
         const chapter = await chapterService.getById(Number(chapterId));
@@ -94,7 +102,16 @@ export class ChapterController {
             }
             chapter.course = $course;
         }
+        if (req.files && req.files.image) {
+            let image = req.files.image;
+            await imageService.delete(chapter.image);
+            const newImage = new ImageEntity();
+            newImage.content = image.data;
+            let $image = await imageService.create(newImage);
+            chapter.image = $image.id;
+        }
         name && (chapter.name = name);
+        order && (chapter.order = Number(order));
         const updatedChapter = await chapterService.update(Number(chapterId), chapter);
 
         return res.status(200).json({ ...updatedChapter });
@@ -115,6 +132,7 @@ export class ChapterController {
             throw new NotFoundException('Chapter not found');
         }
 
+        await imageService.delete(chapter.image);
         await chapterService.delete(chapter.id);
 
         return res.status(200).json({});

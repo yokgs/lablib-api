@@ -15,14 +15,15 @@ export class ChapterService {
     public async update(chapterId: number, chapter: Chapter) {
         return this.chapterRepository.save({ ...chapter, id: chapterId });
     }
+    
     public async getAll(): Promise<Chapter[]> {
         return this.chapterRepository.find({
-        relations:['course', 'labs']
+            relations: ['course', 'labs', 'course.category']
         });
     }
 
     public async getById(id: number): Promise<Chapter | null> {
-        return this.chapterRepository.findOne({ where: { id }, relations:['course', 'labs'] });
+        return this.chapterRepository.findOne({ where: { id }, relations: ['course', 'labs'] });
     }
 
     public async create(chapter: Chapter): Promise<Chapter> {
@@ -43,5 +44,6 @@ export class ChapterService {
             .where("Course.id = :courseId", { courseId })
             .getMany();
     }
+
 }
 export default new ChapterService();

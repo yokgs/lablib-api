@@ -7,14 +7,21 @@ export class PostLabDTO {
     name: string;
 
     @ApiProperty({
+        required: false
+    })
+    description: string;
+
+    @ApiProperty({
         default: 1800
     })
     duration: number;
 
     @ApiProperty({
-        default: 'easy'
+        default: 1
     })
-    level: string;
+    level: number;
+
+
 
     @ApiProperty({
         required: true

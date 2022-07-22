@@ -119,7 +119,7 @@ export class StepController {
         if (!step)
             throw new NotFoundException('Step not found');
 
-        await stepService.delete(Number(step));
+        await stepService.delete(step.id);
 
         return res.status(200).json({});
     }

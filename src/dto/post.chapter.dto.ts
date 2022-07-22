@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { MultipartUpload } from "aws-sdk/clients/s3";
 
 export class PostChapterDTO {
     @ApiProperty({
@@ -9,10 +10,15 @@ export class PostChapterDTO {
     @ApiProperty({
         required: true
     })
-    course: string;
+    course: number;
 
     @ApiProperty({
         required: false
     })
     ordre: number;
+
+    @ApiProperty({
+        required: false
+    })
+    image: MultipartUpload;
 }

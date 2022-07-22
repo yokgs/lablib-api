@@ -10,6 +10,7 @@ import { PostLabDTO } from '../dto/post.lab.dto';
 import { NotFoundException } from '../error/NotFoundException.error';
 import stepService from '../service/step.service';
 import { PutLabDTO } from '../dto/put.lab.dto';
+import { Level } from '../types/level.enum';
 
 @ApiTags('Lab')
 @Controller('api/v1/lab')
@@ -28,7 +29,7 @@ export class LabController {
     })
     @Post('/')
     public async createLab(req: Request, res: Response) {
-        const { name, duration, chapter } = req.body;
+        const { name, duration, chapter, level } = req.body;
 
         if (!name) {
             throw new BadRequestException('Missing required fields');
@@ -43,6 +44,7 @@ export class LabController {
         lab.name = name;
         lab.duration = duration;
         lab.chapter = $chapter;
+        lab.level = Number(level) as Level;
         const newLab = await labService.create(lab);
 
         res.status(201).json({ ...newLab, chapter: lab.chapter.name });
@@ -75,7 +77,7 @@ export class LabController {
     })
     @Put('/:labId')
     public async updateLab(req: Request, res: Response) {
-        const { name, duration, image } = req.body;
+        const { name, duration, level, description } = req.body;
 
         const { labId } = req.params;
         const lab = await labService.getById(Number(labId));
@@ -83,8 +85,13 @@ export class LabController {
         if (!lab) {
             throw new NotFoundException('Lab not found');
         }
-        lab.name = name || lab.name;
-        lab.duration = duration || lab.duration;
+        let $level = Number(level) as Level;
+
+        name && (lab.name = name);
+        description && (lab.description = description);
+        duration && (lab.duration = duration);
+        $level && (lab.level = $level);
+
 
         const updatedLab = await labService.update(Number(labId), lab);
         return res.status(200).json({ ...updatedLab });

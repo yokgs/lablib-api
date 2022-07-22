@@ -2,8 +2,11 @@ import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, JoinColu
 import { Chapter } from "./chapter";
 import { Step } from "./step";
 import { User } from "./user";
+import { Level } from "../types/level.enum";
+
 @Entity()
 export class Lab extends BaseEntity {
+
     @PrimaryGeneratedColumn()
     id: number
 
@@ -11,14 +14,22 @@ export class Lab extends BaseEntity {
     name: string
 
     @Column({
+        default: "",
+        length: 255
+    })
+    description: string
+
+    @Column({
         default: 1800
     })
     duration: number
 
     @Column({
-        default: "easy"
+        default: Level.easy,
+        type: 'enum',
+        enum: Level
     })
-    level: string
+    level: Level
 
     @ManyToOne(
         () => User,
@@ -43,9 +54,10 @@ export class Lab extends BaseEntity {
         step => step.lab
     )
     steps: Step[]
-    
+
     @CreateDateColumn()
     createdAt: Date;
     @UpdateDateColumn()
     updatedAt: Date;
+    
 }
