@@ -48,7 +48,7 @@ export class LabController {
         lab.level = Number(level) as Level;
         const newLab = await labService.create(lab);
 
-        res.status(201).json({ ...newLab, chapter: lab.chapter.name });
+        res.status(201).json({ ...newLab, chapter: lab.chapter.name, steps: 0 });
     }
 
     @ApiOperation({ description: 'Get details of a lab' })
@@ -95,7 +95,7 @@ export class LabController {
 
 
         const updatedLab = await labService.update(Number(labId), lab);
-        return res.status(200).json({ ...updatedLab });
+        return res.status(200).json({ ...updatedLab, chapter: updatedLab.chapter?.id, steps: updatedLab.steps?.length });
     }
 
     @ApiOperation({ description: 'Delete a lab from the database.' })

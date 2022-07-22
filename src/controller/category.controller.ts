@@ -122,7 +122,8 @@ export class CategoryController {
         if (!category) {
             throw new NotFoundException('Category not found');
         }
-        if (await categoryService.getByName(name)) {
+        let $category = await categoryService.getByName(name);
+        if ($category && category.name != name) {
             throw new BadRequestException('Category under this name already exists');
         }
         name && (category.name = name);
@@ -138,7 +139,7 @@ export class CategoryController {
 
         const updatedCategory = await categoryService.update(Number(categoryId), category);
 
-        return res.status(200).json({ ...updatedCategory });
+        return res.status(200).json({ ...updatedCategory, courses: updatedCategory.courses.length });
     }
 
 
@@ -207,7 +208,7 @@ export class CategoryController {
 
         let courses = await courseService.getByCategory(Number(categoryId));
         res.status(200).json(courses.map(c => {
-            return { ...c, category: undefined, chapters: c.chapters.length, level: courseService.getLevel(c) }
+            return { ...c, category: c.category.name, chapters: c.chapters.length, level: courseService.getLevel(c) }
         }));
     }
 }

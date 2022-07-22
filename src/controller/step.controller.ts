@@ -102,7 +102,7 @@ export class StepController {
 
         const updatedStep = await stepService.update(Number(stepId), step);
 
-        return res.status(200).json({ ...updatedStep });
+        return res.status(200).json({ ...updatedStep, lab: updatedStep.lab?.id });
     }
 
     @ApiOperation({ description: 'Delete a step from the database.' })

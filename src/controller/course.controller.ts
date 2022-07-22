@@ -68,7 +68,7 @@ export class CourseController {
         course.category = $category;
         const newCourse = await courseService.create(course);
 
-        res.status(200).json({ ...newCourse, category: course.category.name });
+        res.status(200).json({ ...newCourse, category: course.category.name, chapters: 0 });
     }
 
     @ApiOperation({ description: 'Get details of a course' })
@@ -83,7 +83,7 @@ export class CourseController {
         if (!course) {
             throw new NotFoundException(`Course not found`);
         }
-        
+
         res.status(200).json({
             ...course,
             category: course.category.name,
@@ -119,8 +119,8 @@ export class CourseController {
             let $image = await imageService.create(newImage);
             course.image = $image.id;
         }
-
-        if (await courseService.getByName(name)) {
+        let $course = await courseService.getByName(name)
+        if ($course && course.name != name) {
             throw new BadRequestException('Course under this name already exists');
         }
 
@@ -136,7 +136,7 @@ export class CourseController {
 
         const updatedCourse = await courseService.update(Number(courseId), course);
 
-        return res.status(200).json({ ...updatedCourse });
+        return res.status(200).json({ ...updatedCourse, category: updatedCourse.category?.id, chapters: updatedCourse.chapters?.length });
     }
 
     @ApiOperation({ description: 'Delete a course from the database.' })

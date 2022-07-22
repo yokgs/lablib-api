@@ -57,7 +57,7 @@ export class ChapterController {
         chapter.order = Number(order) || $order;
         const newChapter = await chapterService.create(chapter);
 
-        res.status(200).json({ ...newChapter, course });
+        res.status(200).json({ ...newChapter, course, labs: 0 });
     }
 
     @ApiOperation({ description: 'Get details of a chapter' })
@@ -114,7 +114,7 @@ export class ChapterController {
         order && (chapter.order = Number(order));
         const updatedChapter = await chapterService.update(Number(chapterId), chapter);
 
-        return res.status(200).json({ ...updatedChapter });
+        return res.status(200).json({ ...updatedChapter, course: updatedChapter.course?.id, labs: updatedChapter.labs?.length });
     }
 
     @ApiOperation({ description: 'Delete a chapter from the database.' })
