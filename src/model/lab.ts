@@ -14,8 +14,7 @@ export class Lab extends BaseEntity {
     name: string
 
     @Column({
-        default: "",
-        length: 255
+        default: ""
     })
     description: string
 
@@ -59,5 +58,5 @@ export class Lab extends BaseEntity {
     createdAt: Date;
     @UpdateDateColumn()
     updatedAt: Date;
-    
+
 }

@@ -29,7 +29,7 @@ export class LabController {
     })
     @Post('/')
     public async createLab(req: Request, res: Response) {
-        const { name, duration, chapter, level } = req.body;
+        const { name, duration, chapter, level, description } = req.body;
 
         if (!name) {
             throw new BadRequestException('Missing required fields');
@@ -44,6 +44,7 @@ export class LabController {
         lab.name = name;
         lab.duration = duration;
         lab.chapter = $chapter;
+        lab.description = description;
         lab.level = Number(level) as Level;
         const newLab = await labService.create(lab);
 
