@@ -132,7 +132,7 @@ export class LabController {
             throw new NotFoundException('Lab not found');
 
         let steps = await stepService.getByLab(Number(labId));
-        res.status(200).json(steps);
+        res.status(200).json(steps.map(s => { return { ...s, lab: s.lab?.id } }));
     }
     @ApiOperation({ description: 'Get a list of steps\' id for a given lab' })
     @ApiResponse({
@@ -149,7 +149,7 @@ export class LabController {
 
 
         let steps = await stepService.getByLab(Number(labId));
-        res.status(200).json(steps.map(s => { return { ...s, lab: s.lab?.id } }));
+        res.status(200).json(steps.map(step => step.id));
     }
 }
 

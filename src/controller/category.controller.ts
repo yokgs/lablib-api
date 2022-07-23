@@ -208,7 +208,7 @@ export class CategoryController {
 
         let courses = await courseService.getByCategory(Number(categoryId));
         res.status(200).json(courses.map(c => {
-            return { ...c, category: c.category.name, chapters: c.chapters.length, level: courseService.getLevel(c) }
+            return { ...c, category: c.category?.name, chapters: c.chapters?.length, level: courseService.getLevel(c) }
         }));
     }
 }
