@@ -122,9 +122,11 @@ export class CategoryController {
         if (!category) {
             throw new NotFoundException('Category not found');
         }
-        let $category = await categoryService.getByName(name);
-        if ($category && category.name != name) {
-            throw new BadRequestException('Category under this name already exists');
+        if (name) {
+            let $category = await categoryService.getByName(name);
+            if ($category && category.name != name) {
+                throw new BadRequestException('Category under this name already exists');
+            }
         }
         name && (category.name = name);
         description && (category.description = description);

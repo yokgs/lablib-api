@@ -119,9 +119,11 @@ export class CourseController {
             let $image = await imageService.create(newImage);
             course.image = $image.id;
         }
-        let $course = await courseService.getByName(name)
-        if ($course && course.name != name) {
-            throw new BadRequestException('Course under this name already exists');
+        if (name) {
+            let $course = await courseService.getByName(name)
+            if ($course && course.name != name) {
+                throw new BadRequestException('Course under this name already exists');
+            }
         }
 
         if (typeof category !== 'undefined') {
@@ -174,7 +176,7 @@ export class CourseController {
             throw new NotFoundException('Course not found');
 
         let chapters = await chapterService.getByCourse(Number(courseId));
-        res.status(200).json(chapters.sort((x,y)=>x.order - y.order).map(c => { return { ...c, labs: c.labs?.length, course: c.course?.id} }));
+        res.status(200).json(chapters.sort((x, y) => x.order - y.order).map(c => { return { ...c, labs: c.labs?.length, course: c.course?.id } }));
     }
 
 }
