@@ -35,10 +35,7 @@ export class StepService {
         return this.stepRepository.findOne({ where: { name }, relations: ['lab'] });
     }
     public async getByLab(labId: number): Promise<Step[]> {
-        return this.stepRepository.createQueryBuilder()
-            .leftJoin("Step.lab", "Lab")
-            .where("Lab.id = :labId", { labId })
-            .getMany();
+        return  (await this.getAll()).filter(x => x.lab.id === labId);
     }
 }
 

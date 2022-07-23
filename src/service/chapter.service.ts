@@ -39,10 +39,7 @@ export class ChapterService {
     }
 
     public async getByCourse(courseId: number): Promise<Chapter[]> {
-        return this.chapterRepository.createQueryBuilder()
-            .leftJoin("Chapter.course", "Course")
-            .where("Course.id = :courseId", { courseId })
-            .getMany();
+        return (await this.getAll()).filter(x => x.course.id === courseId);
     }
 
 }

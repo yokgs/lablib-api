@@ -35,10 +35,7 @@ export class LabService {
         return this.labRepository.findOne({ where: { name }, relations: ['chapter', 'steps'] });
     }
     public async getByChapter(chapterId: number): Promise<Lab[]> {
-        return this.labRepository.createQueryBuilder()
-            .leftJoin("Lab.chapter", "Chapter")
-            .where("Chapter.id = :chapterId", { chapterId })
-            .getMany();
+        return  (await this.getAll()).filter(x => x.chapter.id === chapterId);
     }
 }
 

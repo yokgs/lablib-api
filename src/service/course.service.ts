@@ -35,7 +35,7 @@ export class CourseService {
         return this.courseRepository.findOne({ where: { name }, relations: ['chapters'] });
     }
     public async getByCategory(categoryId: number): Promise<Course[]> {
-        return  (await this.getAll()).filter(x => x.category.id === categoryId);
+        return (await this.getAll()).filter(x => x.category.id === categoryId);
     }
 
     public getLevel(course: Course): number {

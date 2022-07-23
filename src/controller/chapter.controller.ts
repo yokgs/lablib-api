@@ -152,7 +152,7 @@ export class ChapterController {
             throw new NotFoundException('Chapter not found');
 
         let labs = await labService.getByChapter(Number(chapterId));
-        res.status(200).json(labs);
+        res.status(200).json(labs.map(l => { return { ...l, steps: l.steps?.length, chapter: l.chapter?.id} }));
     }
 
 }

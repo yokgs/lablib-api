@@ -174,7 +174,7 @@ export class CourseController {
             throw new NotFoundException('Course not found');
 
         let chapters = await chapterService.getByCourse(Number(courseId));
-        res.status(200).json(chapters);
+        res.status(200).json(chapters.map(c => { return { ...c, labs: c.labs?.length, chapter: c.course?.id} }));
     }
 
 }
