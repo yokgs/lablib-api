@@ -149,7 +149,7 @@ export class LabController {
 
 
         let steps = await stepService.getByLab(Number(labId));
-        res.status(200).json(steps.map(step => step.id));
+        res.status(200).json(steps.sort((x,y)=>x.rang - y.rang).map(step => step.id));
     }
 }
 

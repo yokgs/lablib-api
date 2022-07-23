@@ -30,7 +30,7 @@ export class StepController {
     public async createStep(req: Request, res: Response) {
         const { name, lab, content, demo, rang } = req.body;
 
-        if (!lab || !name || !rang || !content) {
+        if (!lab || !name || !content) {
             throw new BadRequestException('Missing required fields');
         }
 
@@ -41,7 +41,7 @@ export class StepController {
         const step = new Step();
 
         step.name = name;
-        step.rang = rang;
+        step.rang = rang || (Math.max(...$lab.steps.map(x => x.rang), 0) + 1);
         step.demo = demo;
         step.content = content;
         step.lab = $lab;
@@ -67,6 +67,7 @@ export class StepController {
         if (!step) {
             throw new NotFoundException('Step not found');
         }
+        
         res.status(200).json({ ...step, lab: step.lab.id });
     }
 
