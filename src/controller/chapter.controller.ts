@@ -34,7 +34,7 @@ export class ChapterController {
     })
     @Post('/')
     public async createChapter(req: Request, res: Response) {
-        const { name, course, order } = req.body;
+        const { name, course, order, description } = req.body;
 
         if (!course || !name) {
             throw new BadRequestException('Missing required fields');
@@ -58,11 +58,12 @@ export class ChapterController {
 
         chapter.name = name;
         chapter.course = $course;
+        chapter.description = description;
         const $order = $course.chapters.length ? (Math.max(...$course.chapters.map(chapter => chapter.order)) + 1) : 1
         chapter.order = Number(order) || $order;
         const newChapter = await chapterService.create(chapter);
 
-        res.status(200).json({ ...newChapter, course, labs: 0, image: newChapter.image || course.image });
+        res.status(200).json({ ...newChapter, course, labs: 0, image: newChapter.image || course.image, category: chapter.course.category.name });
     }
 
     @ApiOperation({ description: 'Get details of a chapter' })
@@ -78,7 +79,7 @@ export class ChapterController {
         if (!chapter) {
             throw new NotFoundException('Chapter not found');
         }
-        res.status(200).json({ ...chapter, course: chapter.course?.name, labs: chapter.labs?.length, image: chapter.image || chapter.course?.image });
+        res.status(200).json({ ...chapter, course: chapter.course?.name, labs: chapter.labs?.length, image: chapter.image || chapter.course?.image, category: chapter.course.category.name });
     }
 
     @ApiOperation({ description: 'Modify a chapter' })
@@ -92,7 +93,7 @@ export class ChapterController {
     })
     @Put('/:chapterId')
     public async updateChapter(req: Request, res: Response) {
-        const { name, course, order } = req.body;
+        const { name, course, order, description } = req.body;
 
         const { chapterId } = req.params;
         const chapter = await chapterService.getById(Number(chapterId));
@@ -100,6 +101,7 @@ export class ChapterController {
         if (!chapter) {
             throw new NotFoundException('Chapter not found');
         }
+
         if (typeof course !== 'undefined') {
             let $course = await courseService.getById(Number(course));
             if (!$course) {
@@ -107,6 +109,7 @@ export class ChapterController {
             }
             chapter.course = $course;
         }
+
         if (req.files && req.files.image) {
             let image = req.files.image;
             await imageService.delete(chapter.image);
@@ -115,11 +118,13 @@ export class ChapterController {
             let $image = await imageService.create(newImage);
             chapter.image = $image.id;
         }
+
         name && (chapter.name = name);
+        description && (chapter.description = description);
         order && (chapter.order = Number(order));
         const updatedChapter = await chapterService.update(Number(chapterId), chapter);
 
-        return res.status(200).json({ ...updatedChapter, course: updatedChapter.course?.id, labs: updatedChapter.labs?.length , image: updatedChapter.image || updatedChapter.course?.image});
+        return res.status(200).json({ ...updatedChapter, course: updatedChapter.course?.id, labs: updatedChapter.labs?.length , image: updatedChapter.image || updatedChapter.course?.image, category: updatedChapter.course.category.name,});
     }
 
     @ApiOperation({ description: 'Delete a chapter from the database.' })

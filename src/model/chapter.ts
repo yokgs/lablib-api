@@ -14,6 +14,10 @@ export class Chapter extends BaseEntity {
     }) order: number
 
     @Column({
+        default: ""
+    }) description: string
+
+    @Column({
         nullable: true
     }) image: string
 
