@@ -21,8 +21,6 @@ export class PostLabDTO {
     })
     level: number;
 
-
-
     @ApiProperty({
         required: true
     })

@@ -178,6 +178,13 @@ export class CourseController {
         let chapters = await chapterService.getByCourse(Number(courseId));
         res.status(200).json(chapters.sort((x, y) => x.order - y.order).map(c => { return { ...c, labs: c.labs?.length, course: c.course?.id } }));
     }
+    @ApiOperation({ description: 'Get a list of last added courses' })
+    @Get('/:courseId/list')
+    public async getlatestCourses(req: Request, res: Response) {
+        const { count } = req.params;
+        const courses = await courseService.getCount(Number(count));
+        res.status(200).json(courses.map(c => { return { ...c, category: c.category?.id, chapters: c.chapters?.length, level: courseService.getLevel(c) } }));
+    }
 
 }
 export default new CourseController();

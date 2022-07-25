@@ -20,5 +20,5 @@ export class PostChapterDTO {
     @ApiProperty({
         required: false
     })
-    image: MultipartUpload;
+    image: string;
 }

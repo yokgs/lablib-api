@@ -23,13 +23,12 @@ import searchRouter from './route/search.router';
 import stepRouter from './route/step.router';
 import userRouter from './route/user.router';
 import cors from 'cors';
-import emailService from './service/email.service';
 
 export class App {
 
     private _app: Application;
     private app: INestApplication;
-    private _origins: string[] = ["http://localhost:3000", "https://admin-lablib.herokuapp.com"];
+    private _origins: string[] = ["http://localhost:5000", "https://admin-lablib.herokuapp.com"];
 
     constructor() {
         this._app = express();
@@ -56,13 +55,16 @@ export class App {
         this._app.use('/api/v1/search', searchRouter.router);
         this._app.use('/api/v1/image', imageRouter.router);
 
-        this._app.get('/', (req, res) => res.send(`Welcome to LabLib :)
+        this._app.get('/', (req, res) => res.send(`Welcome to LabLib API :)
         <ul>
             <li>
                 <a href="/api/v1/category">start from here</a>
             </li>
             <li>
                 <a href="/docs">read the documentation</a>
+            </li>
+            <li>
+                <a href="https://new-lablib.herokuapp.com/">Go to LabLib</a>
             </li>
         </ul>`));
     }
@@ -94,9 +96,9 @@ export class App {
                 domain: config.COOKIE_DOMAIN,
                 signed: false,
                 httpOnly: true,
-                secure: false,//config.NODE_ENV === 'production',
+                secure: config.NODE_ENV === 'production',
                 sameSite: "none",
-                secureProxy: true,
+                //secureProxy: true,
                 secret: config.SESSION_SECRET
             })
         );

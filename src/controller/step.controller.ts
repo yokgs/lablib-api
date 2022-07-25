@@ -51,10 +51,6 @@ export class StepController {
     }
 
     @ApiOperation({ description: 'Get details of a step' })
-    @ApiBody({
-        type: PutStepDTO,
-        description: 'infos to be updated',
-    })
     @ApiResponse({
         status: 404,
         description: 'Step not found',
@@ -73,12 +69,16 @@ export class StepController {
 
     @ApiOperation({ description: 'Modify a step' })
     @ApiParam({ name: 'stepId', type: number })
+    @ApiBody({
+        type: PutStepDTO,
+        description: 'infos to be updated',
+    })
     @ApiResponse({
         status: 404,
         description: 'Step not found',
     })
     @Put('/:stepId')
-    public async updateStep(req: Request, res: Response) {
+    public async updateStep(@Param('stepId') req: Request, res: Response) {
         const { name, lab, rang, demo, content } = req.body;
 
         const { stepId } = req.params;

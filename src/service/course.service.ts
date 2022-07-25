@@ -20,6 +20,9 @@ export class CourseService {
     public async getAll(): Promise<Course[]> {
         return this.courseRepository.find({ relations: ['category', 'chapters', 'chapters.labs'] });
     }
+    public async getCount(count: number): Promise<Course[]> {
+        return this.courseRepository.find({ relations: ['category', 'chapters', 'chapters.labs'], order: { 'createdAt': 'DESC' }, take: count });
+    }
 
     public async getById(id: number): Promise<Course | null> {
         return this.courseRepository.findOne({ where: { id }, relations: ['chapters', 'category', 'chapters.labs'] });

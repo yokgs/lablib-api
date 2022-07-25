@@ -7,7 +7,7 @@ import jwtService from '../service/jwt.service';
 import passwordService from '../service/password.service';
 import { Role } from '../types/role.enum';
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { NotFoundException } from '../error/NotFoundException.error';
 import emailService from '../service/email.service';
 import { IUser } from '../types/user.interface';
@@ -17,11 +17,14 @@ import { IPasswordPayload } from '../types/passwordpayload.interface';
 import path from 'path';
 import { ImageEntity } from '../model/image';
 import imageService from '../service/image.service';
-
+import { PostUserDTO } from '../dto/post.user.dto';
+import { PutUserDTO } from '../dto/put.user.dto';
+import { LoginDTO } from '../dto/login.dto';
 
 @ApiTags('User')
 @Controller('api/v1/user')
 export class UserController {
+
 	@Get('/me')
 	@ApiOperation({ description: 'get information about the current user (session)' })
 	public async currentUser(req: Request, res: Response) {
@@ -29,7 +32,7 @@ export class UserController {
 	}
 
 	@Get('/')
-	@ApiOperation({ description: 'get the ist of all users' })
+	@ApiOperation({ description: 'get the list of all users' })
 	public async allUsers(req: Request, res: Response) {
 		res.status(200).json((await userService.getAll()).map((user) => ({
 			...user,
@@ -40,13 +43,54 @@ export class UserController {
 		})));
 	}
 
+	@Get('/active')
+	@ApiOperation({ description: 'get the list of active users' })
+	public async allActiveUsers(req: Request, res: Response) {
+		res.status(200).json((await userService.getAll()).filter(x => {
+			return (new Date()).getTime() - x.active.getTime() < 24 * 60 * 60 * 1000;
+		}).map((user) => ({
+			...user,
+			password: undefined,
+			//active: req.currentUser.role == Role.ADMIN ? user.active : undefined,
+			//createdAt: req.currentUser.role == Role.ADMIN ? user.createdAt : undefined,
+			updatedAt: undefined
+		})));
+	}
+
+	@Get('/joined')
+	@ApiOperation({ description: 'get the list of recently joined users' })
+	public async allJoinedUsers(req: Request, res: Response) {
+		res.status(200).json((await userService.getAll()).filter(x => {
+			return (new Date()).getTime() - x.createdAt.getTime() < 24 * 60 * 60 * 1000;
+		}).map((user) => ({
+			...user,
+			password: undefined,
+			//active: req.currentUser.role == Role.ADMIN ? user.active : undefined,
+			//createdAt: req.currentUser.role == Role.ADMIN ? user.createdAt : undefined,
+			updatedAt: undefined
+		})));
+	}
+
+
 	@Post('/')
+	@ApiBody({
+		type: PostUserDTO,
+		description: 'user credentials',
+	})
 	@ApiOperation({ description: 'request an email verification link to create new user account', })
 	public async create(req: Request, res: Response) {
 		const { email, password, firstname, lastname } = req.body;
 
 		if (!email || !password || !firstname || !lastname) {
 			throw new BadRequestException('Missing required fields');
+		}
+
+		if (!/^[\w\-\.]+@[\w\-]+\.[\.a-z]+$/.test(email.trim().toLowerCase())) {
+			throw new BadRequestException(`email ${email} must be a valid email address`);
+		}
+
+		if (password.length < 8 || /^[\w]+$/.test(password)) {
+			throw new BadRequestException(`password must be at least 8 characters long with one special character at least`);
 		}
 
 		if (await userService.getByEmail(email)) {
@@ -161,6 +205,10 @@ export class UserController {
 	}
 
 	@Post('/login')
+	@ApiBody({
+		type: LoginDTO,
+		description: 'informations to authenticate user',
+	})
 	@ApiOperation({ description: 'authentication as a specific user' })
 	public async login(req: Request, res: Response) {
 		const { email, password } = req.body;
@@ -200,6 +248,7 @@ export class UserController {
 		await userService.update(user.id, user);
 		res.status(200).json({ ...user, password: undefined });
 	}
+
 	@Post('/logout')
 	@ApiOperation({ description: 'close the session' })
 	public async logout(req: Request, res: Response) {
@@ -255,25 +304,39 @@ export class UserController {
 	}
 
 	@Put('/me')
+	@ApiBody({
+		type: PutUserDTO,
+		description: 'infos to be updated',
+	})
 	@ApiOperation({ description: 'update information about the current user' })
 	public async updateCurrentUser(req: Request, res: Response) {
 		const { email, firstname, lastname, password, currentPassword } = req.body;
 		const user = await userService.getById(req.currentUser.userId);
+
 		let isPasswordValid = await passwordService.comparePassword(currentPassword, user.password);
 		if (!isPasswordValid) {
 			throw new BadRequestException('Invalid password');
 		}
+
 		firstname && (user.firstname = firstname);
 		lastname && (user.lastname = lastname);
+
 		if (email && user.email != email) {
+			if (!/^[\w\-\.]+@[\w\-]+\.[\.a-z]+$/.test(email.trim().toLowerCase())) {
+				throw new BadRequestException(`email ${email} must be a valid email address`);
+			}
+
 			let isUsed = await userService.getByEmail(email);
 			if (isUsed) throw new BadRequestException('Email already in use');
 			user.email = email;
 
 			//sign new email address with user id and send it to the email
 		}
-		if (password)
+		if (password) {
+			if (password.length < 8 || /^[\w]+$/.test(password))
+				throw new BadRequestException(`password must be at least 8 characters long with one special character at least`);
 			user.password = await passwordService.hashPassword(password);
+		}
 
 		if (req.files && req.files.image) {
 			let image = req.files.image;
@@ -304,11 +367,10 @@ export class UserController {
 	}
 
 	@Get('/test/otp')
-	@ApiOperation({ description: '(expirimensional feature) generate an OneTimePassword' })
+	@ApiOperation({ description: '(expirimensional feature) generate OneTimePassword' })
 	public async getOTP(req: Request, res: Response) {
 		let d = 30;
 		res.status(200).json({
-
 			resetIn: (d - ((new Date()).getTime() % (d * 1000)) / 1000) + 's',
 			otp_prev: jwtService.getOTP(req.body.key || 'test', 30, -15),
 			otp: jwtService.getOTP(req.body.key || 'test', 30, 0),

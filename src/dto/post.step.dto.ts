@@ -14,7 +14,7 @@ export class PostStepDTO {
     })
     content: string
     @ApiProperty({
-        required: true
+        required: false
     })
     rang: number
 }

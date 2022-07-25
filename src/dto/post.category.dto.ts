@@ -16,4 +16,6 @@ export class PostCategoryDTO {
         required: false
     })
     image: string;
+
+    
 }

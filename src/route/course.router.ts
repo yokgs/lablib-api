@@ -13,6 +13,7 @@ class CourseRouter {
     private routes() {
         this.router.get('/', courseController.getCourses);
         this.router.post('/', courseController.createCourse);
+        this.router.get('/latest/:count', courseController.getlatestCourses);
         this.router.get('/:courseId', courseController.courseById);
         this.router.put('/:courseId', courseController.updateCourse);
         this.router.delete('/:courseId', courseController.deleteCourse);

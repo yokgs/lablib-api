@@ -19,7 +19,12 @@ export class ChapterController {
     @ApiOperation({ description: 'Get a list of chapters' })
     @Get('/')
     public async getChapters(req: Request, res: Response) {
-        res.status(200).json((await chapterService.getAll()).map((chapter) => ({ ...chapter, course: chapter.course.name, category: chapter.course.category.name, labs: chapter.labs.length })));
+        res.status(200).json((await chapterService.getAll()).map((chapter) => ({
+            ...chapter, course: chapter.course.name,
+            category: chapter.course.category.name,
+            labs: chapter.labs.length,
+            image: chapter.image || chapter.course?.image
+        })));
     }
 
     @ApiOperation({ description: 'Create a new chapter' })
@@ -57,7 +62,7 @@ export class ChapterController {
         chapter.order = Number(order) || $order;
         const newChapter = await chapterService.create(chapter);
 
-        res.status(200).json({ ...newChapter, course, labs: 0 });
+        res.status(200).json({ ...newChapter, course, labs: 0, image: newChapter.image || course.image });
     }
 
     @ApiOperation({ description: 'Get details of a chapter' })
@@ -73,7 +78,7 @@ export class ChapterController {
         if (!chapter) {
             throw new NotFoundException('Chapter not found');
         }
-        res.status(200).json({ ...chapter, course: chapter.course.name, labs: chapter.labs.length });
+        res.status(200).json({ ...chapter, course: chapter.course?.name, labs: chapter.labs?.length, image: chapter.image || chapter.course?.image });
     }
 
     @ApiOperation({ description: 'Modify a chapter' })
@@ -114,7 +119,7 @@ export class ChapterController {
         order && (chapter.order = Number(order));
         const updatedChapter = await chapterService.update(Number(chapterId), chapter);
 
-        return res.status(200).json({ ...updatedChapter, course: updatedChapter.course?.id, labs: updatedChapter.labs?.length });
+        return res.status(200).json({ ...updatedChapter, course: updatedChapter.course?.id, labs: updatedChapter.labs?.length , image: updatedChapter.image || updatedChapter.course?.image});
     }
 
     @ApiOperation({ description: 'Delete a chapter from the database.' })

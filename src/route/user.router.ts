@@ -19,6 +19,16 @@ class AdminRouter {
 			'/',
 			userController.allUsers
 		);
+		
+		this.router.get(
+			'/active',
+			userController.allActiveUsers
+		);
+
+		this.router.get(
+			'/joined',
+			userController.allJoinedUsers
+		);
 
 		this.router.get(
 			'/resetpassword',

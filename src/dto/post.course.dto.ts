@@ -7,6 +7,11 @@ export class PostCourseDTO{
     name: string;
 
     @ApiProperty({
+        required: false
+    })
+    image: string;
+
+    @ApiProperty({
         default: '',
         maxLength: 255,
         required: false
@@ -16,5 +21,6 @@ export class PostCourseDTO{
     @ApiProperty({
         required: true
     })
-    category: string;
+    category: number;
+
 }
