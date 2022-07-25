@@ -1,12 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
 import { Lab } from "./lab";
 @Entity()
-export class Step  extends BaseEntity {
+export class Step extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number
     @Column()
     name: string
-    @Column({nullable:true})
+    @Column({ nullable: true })
     demo: string
     @Column()
     content: string

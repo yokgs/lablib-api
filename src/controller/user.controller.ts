@@ -227,23 +227,23 @@ export class UserController {
 		if (!isPasswordValid) {
 			throw new BadRequestException('Invalid credentials');
 		}
-
-		req.session.access_token = jwtService.sign({
+		
+		const token = jwtService.sign({
 			userId: user.id,
 			role: user.role as Role
 		});
+
+		req.session.access_token = token;
 
 		req.sessionOptions.expires = moment().add(1, 'day').toDate();
-		/*const token = jwtService.sign({
-			userId: user.id,
-			role: user.role as Role
-		});
+
 		res.cookie("Authorization", "Bearer " + token, {
 			httpOnly: true,
 			maxAge: 3600000,
 			sameSite: "none",
-			secure: true,
-		});*/
+			secure: true
+		});
+
 		user.active = new Date();
 		await userService.update(user.id, user);
 		res.status(200).json({ ...user, password: undefined });
@@ -253,6 +253,7 @@ export class UserController {
 	@ApiOperation({ description: 'close the session' })
 	public async logout(req: Request, res: Response) {
 		req.session.access_token = undefined;
+		res.clearCookie('Authorization');
 		res.status(200).json();
 	}
 	@Get('/me/details')

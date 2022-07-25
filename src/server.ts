@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import bodyParser from 'body-parser';
+import session from 'express-session';
 import fileUpload from 'express-fileupload';
 import methodOverride from 'method-override';
 import cookieSession from 'cookie-session';
@@ -23,6 +24,7 @@ import searchRouter from './route/search.router';
 import stepRouter from './route/step.router';
 import userRouter from './route/user.router';
 import cors from 'cors';
+import sessionService from './service/session.service';
 
 export class App {
 
@@ -102,6 +104,19 @@ export class App {
                 secret: config.SESSION_SECRET
             })
         );
+        this._app.use(session({
+            store: sessionService.sessionHandler(),
+            secret: config.SESSION_SECRET,
+            cookie: {
+                sameSite: "none",
+                maxAge: 60 * 60 * 24,
+                secure: config.NODE_ENV === 'production'
+            },
+            unset: "destroy",
+            resave: false,
+            saveUninitialized: false
+        }));
+        
         this._app.use(
             decodeUser
         );
