@@ -179,7 +179,7 @@ export class CourseController {
         res.status(200).json(chapters.sort((x, y) => x.order - y.order).map(c => { return { ...c, labs: c.labs?.length, course: c.course?.id } }));
     }
     @ApiOperation({ description: 'Get a list of last added courses' })
-    @Get('/:courseId/list')
+    @Get('/latest/:count')
     public async getlatestCourses(req: Request, res: Response) {
         const { count } = req.params;
         const courses = await courseService.getCount(Number(count));
