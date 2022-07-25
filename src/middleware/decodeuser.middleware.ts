@@ -14,6 +14,16 @@ export const decodeUser = (req: Request, res: Response, next: NextFunction) => {
 		} catch (error: any) {
 			next();
 		}
+	} else if(req.body?.token){
+		let { token } = req.body;
+		try {
+			req.currentUser = jwt.verify(
+				token,
+				config.JWT_SECRET || ''
+			) as IPayload;
+		} catch (error: any) {
+			next();
+		}
 	}
 	next();
 };

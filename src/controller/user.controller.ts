@@ -227,7 +227,7 @@ export class UserController {
 		if (!isPasswordValid) {
 			throw new BadRequestException('Invalid credentials');
 		}
-		
+
 		const token = jwtService.sign({
 			userId: user.id,
 			role: user.role as Role
@@ -246,7 +246,7 @@ export class UserController {
 
 		user.active = new Date();
 		await userService.update(user.id, user);
-		res.status(200).json({ ...user, password: undefined });
+		res.status(200).json({ ...user, password: undefined , token});
 	}
 
 	@Post('/logout')
