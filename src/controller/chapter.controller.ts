@@ -79,7 +79,7 @@ export class ChapterController {
         if (!chapter) {
             throw new NotFoundException('Chapter not found');
         }
-        res.status(200).json({ ...chapter, course: chapter.course?.name, labs: chapter.labs?.length, image: chapter.image || chapter.course?.image, category: chapter.course.category.name });
+        res.status(200).json({ ...chapter, course: chapter.course?.name, labs: chapter.labs?.length, image: chapter.image || chapter.course?.image, category: chapter.course?.category?.name });
     }
 
     @ApiOperation({ description: 'Modify a chapter' })
