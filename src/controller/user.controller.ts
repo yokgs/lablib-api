@@ -70,7 +70,8 @@ export class UserController {
 			password: undefined,
 			//active: req.currentUser.role == Role.ADMIN ? user.active : undefined,
 			//createdAt: req.currentUser.role == Role.ADMIN ? user.createdAt : undefined,
-			updatedAt: undefined
+			updatedAt: undefined,
+			favorites: undefined
 		})));
 	}
 
@@ -224,7 +225,7 @@ export class UserController {
 	@ApiOperation({ description: 'get information about a specific user' })
 	public async userById(req: Request, res: Response) {
 		const userId = Number(req.params.userId);
-		res.status(200).json({ ...await userService.getById(userId), password: undefined });
+		res.status(200).json({ ...await userService.getById(userId), password: undefined, favorites: undefined });
 	}
 
 	@Post('/login')
@@ -281,7 +282,7 @@ export class UserController {
 		}
 
 		await userService.update(user.id, user);
-		res.status(200).json({ ...user, password: undefined, token });
+		res.status(200).json({ ...user, password: undefined, favorites: undefined, token });
 	}
 
 	@Post('/logout')

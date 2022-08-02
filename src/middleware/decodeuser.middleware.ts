@@ -6,12 +6,14 @@ import { IPayload } from '../types/jwtpayload.interface';
 
 export const decodeUser = async (req: Request, res: Response, next: NextFunction) => {
 
-	const $token = req.headers['Authorization']?.toString();
+	const $token = req.headers['authorization'];
+
 	console.log($token);
 	if ($token) {
+		let token = $token.split(' ')[1];
 		try {
 			req.currentUser = jwt.verify(
-				$token,
+				token,
 				config.JWT_SECRET || ''
 			) as IPayload;
 		} catch (error: any) {
