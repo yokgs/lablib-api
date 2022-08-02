@@ -89,7 +89,7 @@ export class App {
         this._app.use(config.NODE_ENV !== "production" ? morgan('dev') : morgan('combined'));
         this._app.use(securityMiddleware);
         this._app.use(function (req, res, next) {
-            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, authorization");
             next();
           });
         /*this._app.use(
