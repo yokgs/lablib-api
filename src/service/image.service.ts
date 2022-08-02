@@ -22,6 +22,18 @@ export class ImageService {
     public async delete(id: string): Promise<DeleteResult> {
         return this.imageRepository.delete({ id });
     }
+
+    public async setDefaultImage(image: ImageEntity): Promise<ImageEntity> {
+        let img = await this.imageRepository.findOne({ where: { isDefault: true } });
+        await this.delete(img.id);
+        image.isDefault = true;
+        return this.imageRepository.save(image);
+    }
+    public async getDefaultImage(): Promise<String> {
+        let img = await this.imageRepository.findOne({ where: { isDefault: true } });
+        return img.id;
+    }
+
 }
 
 export default new ImageService();

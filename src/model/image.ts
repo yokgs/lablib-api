@@ -8,6 +8,7 @@ export class ImageEntity extends BaseEntity {
         type: 'bytea'
     })
     content: Buffer
+    @Column({default: false}) isDefault: boolean
     @CreateDateColumn()
     createdAt: Date;
     @UpdateDateColumn()

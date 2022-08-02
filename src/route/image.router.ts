@@ -13,6 +13,7 @@ class SearchRouter {
     private routes() {
         this.router.get('/:uuid', imageController.getImage);
         this.router.get('/:uuid/:width', imageController.getAndResizeImage);
+        this.router.post('/', imageController.setDefaultImage);
     }
 
 }

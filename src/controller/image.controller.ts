@@ -4,6 +4,7 @@ import { ApiBadRequestResponse, ApiBody, ApiOkResponse, ApiOperation, ApiParam, 
 import { NotFoundException } from '../error/NotFoundException.error';
 import imageService from '../service/image.service';
 import sharp from 'sharp';
+import { ImageEntity } from '../model/image';
 @ApiTags('Image')
 @Controller('api/v1/image')
 export class ImageController {
@@ -40,6 +41,26 @@ export class ImageController {
         res.setHeader('Content-Disposition', 'attachment; filename="' + uuid + '.png"');
         res.status(200).send(newImage);
     }
+
+    @ApiOperation({ description: 'Set the default image' })
+    @ApiOkResponse({
+        description: 'image file',
+        type: String,
+    })
+    @Post('/')
+    public async setDefaultImage(req: Request, res: Response) {
+        let { image } = req.files || {};
+        if (!image) {
+            throw new NotFoundException('missing file');
+        }
+        let $image = new ImageEntity();
+        $image.isDefault = true;
+        $image.content = image.data;
+        let _image = await imageService.setDefaultImage($image);
+        res.status(200).json({ ..._image, content: '--emmited--' });
+    }
+
+
 
 }
 

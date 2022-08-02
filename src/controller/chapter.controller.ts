@@ -19,11 +19,12 @@ export class ChapterController {
     @ApiOperation({ description: 'Get a list of chapters' })
     @Get('/')
     public async getChapters(req: Request, res: Response) {
+        let defaultImage = await imageService.getDefaultImage();
         res.status(200).json((await chapterService.getAll()).map((chapter) => ({
             ...chapter, course: chapter.course.name,
             category: chapter.course.category.name,
             labs: chapter.labs.length,
-            image: chapter.image || chapter.course?.image
+            image: chapter.image || chapter.course?.image || defaultImage
         })));
     }
 
@@ -62,8 +63,8 @@ export class ChapterController {
         const $order = Math.max(...$course.chapters.map(chapter => chapter.order), 1);
         chapter.order = Number(order) || $order;
         const newChapter = await chapterService.create(chapter);
-
-        res.status(200).json({ ...newChapter, course, labs: 0, image: newChapter.image || course.image, category: chapter.course.category.name });
+        let defaultImage = await imageService.getDefaultImage();
+        res.status(200).json({ ...newChapter, course, labs: 0, image: newChapter.image || course.image || defaultImage, category: chapter.course.category.name });
     }
 
     @ApiOperation({ description: 'Get details of a chapter' })
@@ -79,7 +80,8 @@ export class ChapterController {
         if (!chapter) {
             throw new NotFoundException('Chapter not found');
         }
-        res.status(200).json({ ...chapter, course: chapter.course?.name, labs: chapter.labs?.length, image: chapter.image || chapter.course?.image, category: chapter.course?.category?.name });
+        let defaultImage = await imageService.getDefaultImage();
+        res.status(200).json({ ...chapter, course: chapter.course?.name, labs: chapter.labs?.length, image: chapter.image || chapter.course?.image || defaultImage, category: chapter.course?.category?.name });
     }
 
     @ApiOperation({ description: 'Modify a chapter' })
@@ -123,8 +125,8 @@ export class ChapterController {
         description && (chapter.description = description);
         order && (chapter.order = Number(order));
         const updatedChapter = await chapterService.update(Number(chapterId), chapter);
-
-        return res.status(200).json({ ...updatedChapter, course: updatedChapter.course?.id, labs: updatedChapter.labs?.length , image: updatedChapter.image || updatedChapter.course?.image, category: updatedChapter.course.category.name,});
+        let defaultImage = await imageService.getDefaultImage();
+        return res.status(200).json({ ...updatedChapter, course: updatedChapter.course?.id, labs: updatedChapter.labs?.length, image: updatedChapter.image || updatedChapter.course?.image || defaultImage, category: updatedChapter.course.category.name, });
     }
 
     @ApiOperation({ description: 'Delete a chapter from the database.' })
@@ -162,7 +164,8 @@ export class ChapterController {
             throw new NotFoundException('Chapter not found');
 
         let labs = await labService.getByChapter(Number(chapterId));
-        res.status(200).json(labs.map(l => { return { ...l, steps: l.steps?.length, chapter: l.chapter?.id} }));
+
+        res.status(200).json(labs.map(l => { return { ...l, steps: l.steps?.length, chapter: l.chapter?.id } }));
     }
 
 }

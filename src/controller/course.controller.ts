@@ -21,14 +21,15 @@ export class CourseController {
     @Get('/')
     public async getCourses(req: Request, res: Response) {
         let courses = await courseService.getAll();
-
+        let defaultImage = await imageService.getDefaultImage();
         let $courses = courses.map(course => {
             return {
                 ...course,
                 category: course.category?.name,
                 chapters: course.chapters?.length,
                 level: courseService.getLevel(course),
-                followers: course.followers?.length
+                followers: course.followers?.length,
+                image: course.image || defaultImage
             }
         })
 
@@ -70,8 +71,8 @@ export class CourseController {
         course.image = $image.id;
         course.category = $category;
         const newCourse = await courseService.create(course);
-
-        res.status(200).json({ ...newCourse, category: course.category.name, chapters: 0, followers: 0 });
+        let defaultImage = await imageService.getDefaultImage();
+        res.status(200).json({ ...newCourse, category: course.category.name, chapters: 0, followers: 0, image: course.image || defaultImage });
     }
 
     @ApiOperation({ description: 'Get details of a course' })
@@ -86,13 +87,14 @@ export class CourseController {
         if (!course) {
             throw new NotFoundException(`Course not found`);
         }
-
+        let defaultImage = await imageService.getDefaultImage();
         res.status(200).json({
             ...course,
             category: course.category?.name,
             chapters: course.chapters?.length,
             followers: course.followers?.length,
-            level: courseService.getLevel(course)
+            level: courseService.getLevel(course),
+            image: course.image || defaultImage
         });
     }
 
@@ -141,8 +143,8 @@ export class CourseController {
         name && (course.name = name);
 
         const updatedCourse = await courseService.update(Number(courseId), course);
-
-        return res.status(200).json({ ...updatedCourse, category: updatedCourse.category?.id, chapters: updatedCourse.chapters?.length, followers: updatedCourse.followers?.length });
+        let defaultImage = await imageService.getDefaultImage();
+        return res.status(200).json({ ...updatedCourse, category: updatedCourse.category?.id, chapters: updatedCourse.chapters?.length, followers: updatedCourse.followers?.length, image: updatedCourse.image || defaultImage });
     }
 
     @ApiOperation({ description: 'Delete a course from the database.' })
@@ -229,14 +231,16 @@ export class CourseController {
             throw new NotFoundException('Course not found');
 
         let chapters = await chapterService.getByCourse(Number(courseId));
-        res.status(200).json(chapters.sort((x, y) => x.order - y.order).map(c => { return { ...c, labs: c.labs?.length, course: c.course?.id } }));
+        let defaultImage = await imageService.getDefaultImage();
+        res.status(200).json(chapters.sort((x, y) => x.order - y.order).map(c => { return { ...c, labs: c.labs?.length, course: c.course?.id, image: c.image || c.course?.image || defaultImage } }));
     }
     @ApiOperation({ description: 'Get a list of last added courses' })
     @Get('/latest/:count')
     public async getlatestCourses(req: Request, res: Response) {
         const { count } = req.params;
         const courses = await courseService.getCount(Number(count));
-        res.status(200).json(courses.map(c => { return { ...c, category: c.category?.id, chapters: c.chapters?.length, level: courseService.getLevel(c) } }));
+        let defaultImage = await imageService.getDefaultImage();
+        res.status(200).json(courses.map(c => { return { ...c, category: c.category?.id, chapters: c.chapters?.length, level: courseService.getLevel(c), image: c.image || defaultImage } }));
     }
     @ApiOperation({ description: 'Get a list of favorites courses' })
     @Get('/favorites/:count')

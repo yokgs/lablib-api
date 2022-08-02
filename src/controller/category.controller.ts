@@ -24,7 +24,8 @@ export class CategoryController {
     })
     @Get('/')
     public async getCategories(req: Request, res: Response) {
-        res.status(200).json((await categoryService.getAll()).map((category) => ({ ...category, courses: category.courses.length })));
+        let defaultImage = await imageService.getDefaultImage();
+        res.status(200).json((await categoryService.getAll()).map((category) => ({ ...category, courses: category.courses.length, image: category.image||defaultImage})));
     }
 
     @ApiOperation({ description: 'Create a new category' })
@@ -48,7 +49,6 @@ export class CategoryController {
     @Post('/')
     public async createCategory(req: Request, res: Response) {
         const { name, description } = req.body;
-        console.log(name, description)
         if (!name) {
             throw new BadRequestException('Missing required fields');
         }
@@ -67,10 +67,10 @@ export class CategoryController {
         const category = new Category();
         category.name = name;
         category.image = $image.id;
-
+        let defaultImage = await imageService.getDefaultImage();
         category.description = description;
         const newCategory = await categoryService.create(category);
-        res.status(200).json({ ...newCategory });
+        res.status(200).json({ ...newCategory, image: newCategory.image||defaultImage });
     }
 
     @ApiOperation({ description: 'Get details of a category' })
@@ -93,7 +93,8 @@ export class CategoryController {
         if (!category) {
             throw new NotFoundException('Category not found');
         }
-        res.status(200).json({ ...category, courses: category.courses.length });
+        let defaultImage = await imageService.getDefaultImage();
+        res.status(200).json({ ...category, courses: category.courses.length , image: category.image||defaultImage});
     }
 
 
@@ -140,8 +141,8 @@ export class CategoryController {
         }
 
         const updatedCategory = await categoryService.update(Number(categoryId), category);
-
-        return res.status(200).json({ ...updatedCategory, courses: updatedCategory.courses.length });
+        let defaultImage = await imageService.getDefaultImage();
+        return res.status(200).json({ ...updatedCategory, courses: updatedCategory.courses.length, image: updatedCategory.image||defaultImage });
     }
 
 
@@ -209,8 +210,9 @@ export class CategoryController {
             throw new NotFoundException('Category not found');
 
         let courses = await courseService.getByCategory(Number(categoryId));
+        let defaultImage = await imageService.getDefaultImage();
         res.status(200).json(courses.map(c => {
-            return { ...c, category: c.category?.name, chapters: c.chapters?.length, level: courseService.getLevel(c) }
+            return { ...c, category: c.category?.name, chapters: c.chapters?.length, level: courseService.getLevel(c), image: c.image||category.image||defaultImage }
         }));
     }
 }
