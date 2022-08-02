@@ -8,23 +8,27 @@ export const decodeUser = async (req: Request, res: Response, next: NextFunction
 
 	const $token = req.headers['authorization'];
 
-	console.log($token);
+	//console.log($token);
 	if ($token) {
-		let token = $token.split(' ')[1];
-		try {
-			req.currentUser = jwt.verify(
-				token,
-				config.JWT_SECRET || ''
-			) as IPayload;
-		} catch (error: any) {
-			//next();
+		let [method, token] = $token.split(' ');
+		if (method === 'Bearer') {
+
+
+			try {
+
+				req.currentUser = jwt.verify(
+					token,
+					config.JWT_SECRET || ''
+				) as IPayload;
+			} catch (error: any) {
+				//next();
+			}
 		}
-	}
-	if (req.body?.device) {
-		let { device } = req.body;
-		let $device = await deviceService.getByDevice(device);
-		if (!$device) next();
-		req.currentUser = { userId: $device.user.id, role: $device.user.role } as IPayload;
+		if (method === 'Device') {
+			let $device = await deviceService.getByDevice(token);
+			if (!$device) next();
+			req.currentUser = { userId: $device.user.id, role: $device.user.role } as IPayload;
+		}
 	}
 	next();
 };

@@ -247,8 +247,8 @@ export class CourseController {
         if (!user) {
             throw new NotFoundException('Invalid user');
         }
-        const courses = user.favorites.slice(0, Number(count));
-        res.status(200).json(courses.map(c => { return { ...c, category: c.category?.id, chapters: c.chapters?.length, level: courseService.getLevel(c), followers: c.followers?.length} }));
+        const courses = user.favorites?.slice(0, Number(count));
+        res.status(200).json(courses?.map(c => { return { ...c, category: c.category?.id, chapters: c.chapters?.length, level: courseService.getLevel(c), followers: c.followers?.length} }));
     }
 
     @ApiOperation({ description: 'Get a list of recommendations for a course' })
