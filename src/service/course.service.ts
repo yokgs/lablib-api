@@ -16,14 +16,14 @@ export class CourseService {
         return this.courseRepository.save({ ...course, id: courseId });
     }
     public async getAll(): Promise<Course[]> {
-        return this.courseRepository.find({ relations: ['category', 'chapters', 'chapters.labs'] });
+        return this.courseRepository.find({ relations: ['category', 'chapters', 'chapters.labs','followers'] });
     }
     public async getCount(count: number): Promise<Course[]> {
         return this.courseRepository.find({ relations: ['category', 'chapters', 'chapters.labs'], order: { 'createdAt': 'DESC' }, take: count });
     }
 
     public async getById(id: number): Promise<Course | null> {
-        return this.courseRepository.findOne({ where: { id }, relations: ['chapters', 'category', 'chapters.labs'] });
+        return this.courseRepository.findOne({ where: { id }, relations: ['chapters', 'category', 'chapters.labs','followers'] });
     }
 
     public async create(course: Course): Promise<Course> {

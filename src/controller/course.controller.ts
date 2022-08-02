@@ -11,6 +11,8 @@ import { PostCourseDTO } from '../dto/post.course.dto';
 import { PutCourseDTO } from '../dto/put.course.dto';
 import imageService from '../service/image.service';
 import { ImageEntity } from '../model/image';
+import userService from '../service/user.service';
+import { Not } from 'typeorm';
 
 @ApiTags('Course')
 @Controller('api/v1/course')
@@ -23,9 +25,10 @@ export class CourseController {
         let $courses = courses.map(course => {
             return {
                 ...course,
-                category: course.category.name,
-                chapters: course.chapters.length,
-                level: courseService.getLevel(course)
+                category: course.category?.name,
+                chapters: course.chapters?.length,
+                level: courseService.getLevel(course),
+                followers: course.followers?.length
             }
         })
 
@@ -68,7 +71,7 @@ export class CourseController {
         course.category = $category;
         const newCourse = await courseService.create(course);
 
-        res.status(200).json({ ...newCourse, category: course.category.name, chapters: 0 });
+        res.status(200).json({ ...newCourse, category: course.category.name, chapters: 0, followers: 0 });
     }
 
     @ApiOperation({ description: 'Get details of a course' })
@@ -86,8 +89,9 @@ export class CourseController {
 
         res.status(200).json({
             ...course,
-            category: course.category.name,
-            chapters: course.chapters.length,
+            category: course.category?.name,
+            chapters: course.chapters?.length,
+            followers: course.followers?.length,
             level: courseService.getLevel(course)
         });
     }
@@ -138,7 +142,7 @@ export class CourseController {
 
         const updatedCourse = await courseService.update(Number(courseId), course);
 
-        return res.status(200).json({ ...updatedCourse, category: updatedCourse.category?.id, chapters: updatedCourse.chapters?.length });
+        return res.status(200).json({ ...updatedCourse, category: updatedCourse.category?.id, chapters: updatedCourse.chapters?.length, followers: updatedCourse.followers?.length });
     }
 
     @ApiOperation({ description: 'Delete a course from the database.' })
@@ -158,6 +162,55 @@ export class CourseController {
 
         await imageService.delete(course.image);
         await courseService.delete(course.id);
+
+        return res.status(200).json({});
+    }
+    @ApiOperation({ description: 'Add course to favorites.' })
+    @ApiResponse({
+        status: 404,
+        description: 'Course not found',
+    })
+    @Post('/:courseId/like')
+    public async addCourseToFavorites(req: Request, res: Response) {
+        const { courseId } = req.params;
+        const { userId } = req.currentUser;
+        let user = await userService.getById(userId);
+        if (!user) {
+            throw new NotFoundException('Invalid user');
+        }
+
+        const course = await courseService.getById(Number(courseId));
+
+        if (!course) {
+            throw new NotFoundException('Course not found');
+        }
+
+        user.favorites.push(course);
+        await userService.update(userId, user);
+        return res.status(200).json({});
+    }
+    @ApiOperation({ description: 'Remove a course from favorites.' })
+    @ApiResponse({
+        status: 404,
+        description: 'Course not found',
+    })
+    @Delete('/:courseId/like')
+    public async removeCourseFromFavorites(req: Request, res: Response) {
+        const { courseId } = req.params;
+        const { userId } = req.currentUser;
+        let user = await userService.getById(userId);
+        if (!user) {
+            throw new NotFoundException('Invalid user');
+        }
+
+        const course = await courseService.getById(Number(courseId));
+
+        if (!course) {
+            throw new NotFoundException('Course not found');
+        }
+
+        user.favorites = user.favorites.filter(favorite => favorite.id !== course.id);
+        await userService.update(userId, user);
 
         return res.status(200).json({});
     }
@@ -185,6 +238,49 @@ export class CourseController {
         const courses = await courseService.getCount(Number(count));
         res.status(200).json(courses.map(c => { return { ...c, category: c.category?.id, chapters: c.chapters?.length, level: courseService.getLevel(c) } }));
     }
+    @ApiOperation({ description: 'Get a list of favorites courses' })
+    @Get('/favorites/:count')
+    public async getFavoriteCourses(req: Request, res: Response) {
+        const { count } = req.params;
+        let { userId } = req.currentUser;
+        let user = await userService.getById(userId);
+        if (!user) {
+            throw new NotFoundException('Invalid user');
+        }
+        const courses = user.favorites.slice(0, Number(count));
+        res.status(200).json(courses.map(c => { return { ...c, category: c.category?.id, chapters: c.chapters?.length, level: courseService.getLevel(c), followers: c.followers?.length} }));
+    }
+
+    @ApiOperation({ description: 'Get a list of recommendations for a course' })
+    @Get('/suggestions/:count')
+    public async getSuggestions(req: Request, res: Response) {
+        const { count } = req.params;
+        let { userId } = req.currentUser;
+        let user = await userService.getByIdWithDeepFollowers(userId);
+        if (!user) {
+            throw new NotFoundException('Invalid user');
+        }
+        const courses = user.favorites.map(c => c.followers.map(f => f.favorites.map($ => $.id))).flat(2);
+        let i = [], cs = [];
+        courses.forEach(c => {
+            if (!(cs.includes(c))) { i.push(0); cs.push(c); }
+            i[cs.indexOf(c)] += 1;
+        });
+
+        let used = user.favorites.map(c => c.id), max = 0, mxi;
+        for (let y of cs) {
+            for (let j of cs) {
+                if (used.includes(j)) continue;
+                let $ = i[cs.indexOf(j)];
+                if ($ > max) { max = $; mxi = j; }
+            }
+            used.push(mxi);
+            if (used.length - user.favorites.length == Number(count)) break;
+        }
+
+        res.status(200).json(used.slice(user.favorites.length));
+    }
+
 
 }
 export default new CourseController();

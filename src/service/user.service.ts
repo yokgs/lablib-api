@@ -16,11 +16,14 @@ class UserService {
 		return this.userRepository.save({ ...user, id: userId });
 	}
 	public async getAll(): Promise<User[]> {
-		return this.userRepository.find();
+		return this.userRepository.find({ relations: ['favorites']});
 	}
 
 	public async getById(id: number): Promise<User | null> {
-		return this.userRepository.findOne({ where: { id } });
+		return this.userRepository.findOne({ where: { id }, relations: ['favorites']});
+	}
+	public async getByIdWithDeepFollowers(id: number): Promise<User | null> {
+		return this.userRepository.findOne({ where: { id }, relations: ['favorites.followers.favorites']});
 	}
 
 	public async create(user: User): Promise<User> {
@@ -30,6 +33,7 @@ class UserService {
 	public async getByEmail(email: string): Promise<User | null> {
 		return this.userRepository.findOneBy({ email });
 	}
+
 	public async delete(id: number): Promise<DeleteResult> {
 		return this.userRepository.delete({ id });
 	}

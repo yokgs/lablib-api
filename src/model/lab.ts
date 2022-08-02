@@ -47,10 +47,11 @@ export class Lab extends BaseEntity {
         name: 'chapter_id'
     })
     chapter: Chapter
-    
+
     @OneToMany(
         () => Step,
-        step => step.lab
+        step => step.lab,
+        { cascade: true }
     )
     steps: Step[]
 

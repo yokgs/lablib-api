@@ -19,7 +19,12 @@ export class LabController {
     @ApiOperation({ description: 'Get a list of labs' })
     @Get('/')
     public async getLabs(req: Request, res: Response) {
-        res.status(200).json((await labService.getAll()).map((lab) => ({ ...lab, chapter: lab.chapter.name, steps: lab.steps.length })));
+        res.status(200).json((await labService.getAll()).map((lab) => ({
+            ...lab,
+            chapter: lab.chapter.name,
+            duration: lab.steps?.map(s => s.duration)?.reduce((x, y) => x + y, 0),
+            steps: lab.steps.length
+        })));
     }
 
     @ApiOperation({ description: 'Create a new lab' })
@@ -31,7 +36,7 @@ export class LabController {
     public async createLab(req: Request, res: Response) {
         const { name, duration, chapter, level, description } = req.body;
 
-        if (!name) {
+        if (!name || !chapter) {
             throw new BadRequestException('Missing required fields');
         }
 
@@ -42,13 +47,13 @@ export class LabController {
         const lab = new Lab();
 
         lab.name = name;
-        lab.duration = duration;
+        //lab.duration = duration;
         lab.chapter = $chapter;
         lab.description = description;
         lab.level = Number(level) as Level;
         const newLab = await labService.create(lab);
 
-        res.status(201).json({ ...newLab, chapter: lab.chapter.name, steps: 0 });
+        res.status(201).json({ ...newLab, chapter: lab.chapter.name, steps: 0, duration: 0 });
     }
 
     @ApiOperation({ description: 'Get details of a lab' })
@@ -64,7 +69,11 @@ export class LabController {
         if (!lab) {
             throw new NotFoundException('Lab not found');
         }
-        res.status(200).json({ ...lab, chapter: lab.chapter.name, steps: lab.steps.length });
+        res.status(200).json({
+            ...lab, chapter: lab.chapter.name,
+            duration: lab.steps?.map(s => s.duration)?.reduce((x, y) => x + y, 0),
+            steps: lab.steps?.length
+        });
     }
 
     @ApiOperation({ description: 'Modify a lab' })
@@ -93,9 +102,13 @@ export class LabController {
         duration && (lab.duration = duration);
         $level && (lab.level = $level);
 
-
         const updatedLab = await labService.update(Number(labId), lab);
-        return res.status(200).json({ ...updatedLab, chapter: updatedLab.chapter?.id, steps: updatedLab.steps?.length });
+        return res.status(200).json({
+            ...updatedLab,
+            duration: updatedLab.steps?.map(s => s.duration)?.reduce((x, y) => x + y, 0),
+            chapter: updatedLab.chapter?.id,
+            steps: updatedLab.steps?.length
+        });
     }
 
     @ApiOperation({ description: 'Delete a lab from the database.' })
@@ -146,10 +159,8 @@ export class LabController {
 
         if (!lab)
             throw new NotFoundException('Lab not found');
-
-
         let steps = await stepService.getByLab(Number(labId));
-        res.status(200).json(steps.sort((x,y)=>x.rang - y.rang).map(step => step.id));
+        res.status(200).json(steps.sort((x, y) => x.rang - y.rang).map(step => step.id));
     }
 }
 
