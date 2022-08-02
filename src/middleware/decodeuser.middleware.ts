@@ -6,7 +6,7 @@ import { IPayload } from '../types/jwtpayload.interface';
 
 export const decodeUser = async (req: Request, res: Response, next: NextFunction) => {
 
-	const $token = req.headers['Authorization'].toString();
+	const $token = req.headers['Authorization']?.toString();
 	if ($token) {
 		try {
 			req.currentUser = jwt.verify(
