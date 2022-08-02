@@ -9,13 +9,14 @@ import { Chapter } from '../model/chapter';
 import { Step } from '../model/step';
 import { ImageEntity } from '../model/image';
 import { SessionContainer } from '../model/session';
+import { Device } from '../model/device';
 
 
 const PostgresDataSource = new DataSource({
 	name: 'default',
 	type: 'postgres',
 	url: config.DB_URL,
-	entities: [User, Lab, Category, Course, Chapter, Step, ImageEntity, SessionContainer],
+	entities: [User, Lab, Category, Course, Chapter, Step, ImageEntity, Device, SessionContainer],
 	ssl: config.NODE_ENV == 'development' ? undefined : {
 		rejectUnauthorized: false
 	},
