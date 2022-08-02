@@ -5,6 +5,7 @@ import { IPayload } from '../types/jwtpayload.interface';
 import { IPasswordPayload } from '../types/passwordpayload.interface';
 import { IUser } from '../types/user.interface';
 import { IInvitation } from '../types/invitation.interface';
+import { IEmail } from '../types/email.interface';
 
 class JwtService {
 	constructor(private readonly options?: SignOptions) { }
@@ -14,6 +15,9 @@ class JwtService {
 	}
 	public signUser(user: IUser): string {
 		return jwt.sign(user, config.JWT_SECRET!, this.options);
+	}
+	public signEmail(email: IEmail): string {
+		return jwt.sign(email, config.JWT_SECRET!, this.options);
 	}
 	public signPassword(password: IPasswordPayload): string {
 		return jwt.sign(password, config.JWT_SECRET!, {
@@ -31,6 +35,9 @@ class JwtService {
 	}
 	public verifyAccount(token: string): IUser {
 		return jwt.verify(token, config.JWT_SECRET!, this.options) as IUser;
+	}
+	public verifyEmail(token: string): IEmail {
+		return jwt.verify(token, config.JWT_SECRET!, this.options) as IEmail;
 	}
 	public verifyPassword(token: string): IPasswordPayload {
 		return jwt.verify(token, config.JWT_SECRET!, this.options) as IPasswordPayload;

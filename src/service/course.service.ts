@@ -2,8 +2,6 @@ import { DeleteResult, Repository } from 'typeorm';
 import { PostgresDataSource } from '../config/datasource.config';
 import { Course } from '../model/course';
 import { Injectable } from '@nestjs/common';
-import { x } from 'joi';
-import { xssFilter } from 'helmet';
 
 @Injectable()
 export class CourseService {

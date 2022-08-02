@@ -28,7 +28,7 @@ export class StepController {
     })
     @Post('/')
     public async createStep(req: Request, res: Response) {
-        const { name, lab, content, demo, rang } = req.body;
+        const { name, lab, content, demo, rang, duration } = req.body;
 
         if (!lab || !name || !content) {
             throw new BadRequestException('Missing required fields');
@@ -45,6 +45,7 @@ export class StepController {
         step.demo = demo;
         step.content = content;
         step.lab = $lab;
+        step.duration = Number(duration);
         const newStep = await stepService.create(step);
 
         res.status(200).json({ ...newStep, lab: step.lab.name });
@@ -79,7 +80,7 @@ export class StepController {
     })
     @Put('/:stepId')
     public async updateStep(@Param('stepId') req: Request, res: Response) {
-        const { name, lab, rang, demo, content } = req.body;
+        const { name, lab, rang, demo, content, duration } = req.body;
 
         const { stepId } = req.params;
 
@@ -93,6 +94,7 @@ export class StepController {
         content && (step.content = content);
         demo && (step.demo = demo);
         rang && (step.rang = Number(rang));
+        duration && (step.duration = Number(duration));
         if (typeof lab != 'undefined') {
             let $lab = await labService.getById(Number(lab));
             if (!$lab) {

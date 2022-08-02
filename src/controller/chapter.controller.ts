@@ -59,7 +59,7 @@ export class ChapterController {
         chapter.name = name;
         chapter.course = $course;
         chapter.description = description;
-        const $order = $course.chapters.length ? (Math.max(...$course.chapters.map(chapter => chapter.order)) + 1) : 1
+        const $order = Math.max(...$course.chapters.map(chapter => chapter.order), 1);
         chapter.order = Number(order) || $order;
         const newChapter = await chapterService.create(chapter);
 

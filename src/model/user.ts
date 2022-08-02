@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany, CreateDateColumn, UpdateDateColumn, ManyToOne, ManyToMany, JoinTable } from "typeorm";
 import { Role } from '../types/role.enum';
 import { Course } from "./course";
+import { Device } from "./device";
 import { Lab } from "./lab";
 @Entity()
 export class User extends BaseEntity {
@@ -39,6 +40,12 @@ export class User extends BaseEntity {
         lab => lab.user
     )
     labs: Lab[]
+
+    @OneToMany(
+        () => Device,
+        device => device.user
+    )
+    devices: Device[];
 
     @ManyToMany(
         () => Course,

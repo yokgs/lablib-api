@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, response, Response } from 'express';
 import moment, { duration } from 'moment';
 import { BadRequestException } from '../error/BadRequestException.error';
 import { User } from '../model/user';
@@ -20,6 +20,9 @@ import imageService from '../service/image.service';
 import { PostUserDTO } from '../dto/post.user.dto';
 import { PutUserDTO } from '../dto/put.user.dto';
 import { LoginDTO } from '../dto/login.dto';
+import { IEmail } from '../types/email.interface';
+import deviceService from '../service/device.service';
+import { Device } from '../model/device';
 
 @ApiTags('User')
 @Controller('api/v1/user')
@@ -174,6 +177,26 @@ export class UserController {
 		}
 		res.status(200).sendFile(path.join(__dirname, '../../static/passwordreset.html'));
 	}
+	@Get('/changeemail/:token')
+	@ApiOperation({ description: '(expirimental feature) get access to reset your password' })
+	public async changeEmail(req: Request, res: Response) {
+		let { token } = req.params, body: IEmail;
+		try {
+			body = jwtService.verifyEmail(token);
+
+		} catch (err) {
+			throw new BadRequestException('Invalid token');
+		}
+
+		let { id } = body;
+		const user = await userService.getById(id);
+		if (!user) {
+			throw new NotFoundException('User not found');
+		}
+		user.email = body.email;
+		let updatedUser = userService.update(id, user);
+		res.status(200).json({ message: 'Email updated successfully' });
+	}
 
 	@Post('/resetpassword/:token')
 	@ApiOperation({ description: 'request to change password via link sent to the email' })
@@ -211,7 +234,7 @@ export class UserController {
 	})
 	@ApiOperation({ description: 'authentication as a specific user' })
 	public async login(req: Request, res: Response) {
-		const { email, password } = req.body;
+		const { email, password, device } = req.body;
 
 		const user = await userService.getByEmail(email);
 
@@ -233,7 +256,7 @@ export class UserController {
 			role: user.role as Role
 		});
 
-		req.session.access_token = token;
+		/*req.session.access_token = token;
 
 		req.sessionOptions.expires = moment().add(1, 'day').toDate();
 
@@ -242,18 +265,33 @@ export class UserController {
 			maxAge: 3600000,
 			sameSite: "none",
 			secure: true
-		});
+		});*/
 
 		user.active = new Date();
+
+		if (device) {
+			let $device = await deviceService.getByDevice(device);
+			if ($device)
+				throw new BadRequestException('Your device is already in use. log out first');
+			let _device = new Device();
+			_device.identifier = device;
+			_device.user = user;
+			_device.token = token;
+			await deviceService.create(_device);
+		}
+
 		await userService.update(user.id, user);
-		res.status(200).json({ ...user, password: undefined , token});
+		res.status(200).json({ ...user, password: undefined, token });
 	}
 
 	@Post('/logout')
 	@ApiOperation({ description: 'close the session' })
 	public async logout(req: Request, res: Response) {
-		req.session.access_token = undefined;
-		res.clearCookie('Authorization');
+		/*req.session.access_token = undefined;
+		res.clearCookie('Authorization');*/
+		if (req.body?.device) {
+			
+		}
 		res.status(200).json();
 	}
 	@Get('/me/details')
@@ -329,8 +367,12 @@ export class UserController {
 
 			let isUsed = await userService.getByEmail(email);
 			if (isUsed) throw new BadRequestException('Email already in use');
-			user.email = email;
-
+			//user.email = email;
+			let token = await jwtService.signEmail({
+				id: user.id,
+				email
+			});
+			emailService.sendMail(htmlService.createLink(config.origin + 'api/v1/user/changeemail/' + token, 'click to change your email address'), email, 'Change Password For Your LabLib Account');
 			//sign new email address with user id and send it to the email
 		}
 		if (password) {

@@ -92,7 +92,7 @@ export class App {
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
           });
-        this._app.use(
+        /*this._app.use(
             cookieSession({
                 name: 'access_token',
                 domain: config.COOKIE_DOMAIN,
@@ -115,7 +115,7 @@ export class App {
             unset: "destroy",
             resave: false,
             saveUninitialized: false
-        }));
+        }));*/
         
         this._app.use(
             decodeUser

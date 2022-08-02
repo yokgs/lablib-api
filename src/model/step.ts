@@ -6,6 +6,8 @@ export class Step extends BaseEntity {
     id: number
     @Column()
     name: string
+    @Column({ default: 30 })
+    duration: number;
     @Column({ nullable: true })
     demo: string
     @Column()
